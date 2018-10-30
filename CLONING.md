@@ -24,6 +24,7 @@ git clone https://github.com/qpn6ph9q/ashesofcreation.wiki.bot.git
 ```
 npm init -y
 npm install discord.js
+npm install xmlhttprequest
 ```
 
 # Starting the ashesofcreation.wiki bot on your server
