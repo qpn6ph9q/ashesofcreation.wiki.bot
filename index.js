@@ -80,7 +80,7 @@ client.on('message', async message => {
     return;
    }
    if (!json.result.hits.total) {
-    message.channel.send('"' + search + '" not found. Try something else.');
+    message.channel.send('"' + args.join(' ') + '" not found. Try something else.');
     return;
    }
    if (json.result.hits.total == 1) {
