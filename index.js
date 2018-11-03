@@ -112,7 +112,7 @@ client.on('message', async message => {
  }
  if (command === 'help') {
   message.channel.send('** ashesofcreation.wiki Discord bot **')
-`  message.channel.send('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
+  message.channel.send('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
   message.channel.send('Commands:')
    .catch(err => {
     console.log(err);
