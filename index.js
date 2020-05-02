@@ -6,6 +6,7 @@ const {
 } = require('discord.js');
 const client = new Client();
 const config = require('./config.json');
+const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 
 function ucFirst(str) {
 	return str.charAt(0).toUpperCase() + str.slice(1);
@@ -44,94 +45,93 @@ client.on('message', async message => {
 	if (message.author.bot)
 		return;
 
-if (message.content.indexOf(config.prefix) !== 0)
-	return;
-
-const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
-const command = args.shift().toLowerCase();
-
-if (command === 'ping') {
-	const m = await message.channel.send('test');
-	m.edit(`Ping latency: ${m.createdTimestamp - message.createdTimestamp}ms. API Latency: ${Math.round(client.ping)}ms`);
-}
-if (command === 'search' || command === 'wiki') {
-	var search = args.join(' ');
-	if (search == '') {
-		message.channel.send('https://ashesofcreation.wiki');
+	if (message.content.indexOf(config.prefix) !== 0)
 		return;
+
+	const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
+	const command = args.shift().toLowerCase();
+
+	if (command === 'ping') {
+		const m = await message.channel.send('test');
+		m.edit(`Ping latency: ${m.createdTimestamp - message.createdTimestamp}ms. API Latency: ${Math.round(client.ping)}ms`);
 	}
-	var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
-	var xhr = new XMLHttpRequest();
-	xhr.addEventListener('load', function() {
-		var response = xhr.responseText;
-		if (!response) {
-			message.channel.send(`https://ashesofcreation.wiki/${uriWikiEncode(search)}`)
+	if (command === 'search' || command === 'wiki') {
+		var search = args.join(' ');
+		if (search == '') {
+			message.channel.send('https://ashesofcreation.wiki');
+			return;
+		}
+		var xhr = new XMLHttpRequest();
+		xhr.addEventListener('load', function() {
+			var response = xhr.responseText;
+			if (!response) {
+				message.channel.send(`https://ashesofcreation.wiki/${uriWikiEncode(search)}`)
+					.catch(err => {
+						console.log(err);
+					});
+				return;
+			}
+			var json = JSON.parse(response);
+			if (!json) {
+				message.channel.send('Missing response. Try again later.');
+				return;
+			}
+			const result = json.__main__.result;
+			if (!result) {
+				message.channel.send('Invalid response format. Try again later.');
+				return;
+			}
+			if (!result.hits) {
+				message.channel.send('No matching results. Try something else.');
+				return;
+			}
+			if (!result.hits.total) {
+				message.channel.send(`${args.join(' ')} not found. Try something else.`);
+				return;
+			}
+			if (result.hits.total == 1) {
+				message.channel.send(`https://ashesofcreation.wiki/${uriWikiEncode(result.hits.hits[0]._source.title)}`)
+					.catch(err => {
+						console.log(err);
+					});
+				return;
+			}
+			var count = 1;
+			result.hits.hits.length = command === 'search' ? 10 : 3;
+			const embed = new MessageEmbed().setTitle(`${command} results`).setColor('#e69710');
+			result.hits.hits.forEach(function(hit) {
+				var m = hit.highlight.text.toString();
+				m = m.replace(/<span[^>]+>([^<]+)<\/span>/g, '***$1***');
+				m = m.replace(/\uE000([^\uE001]+)\uE001/g, '***$1***');
+				m = m.replace(/<[^>]+>/g, '');
+				embed.addField(`${count}: <https://ashesofcreation.wiki/${uriWikiEncode(hit._source.title)}>`,`...${m}...`);
+				count++;
+			});
+			message.channel.send(embed)
 				.catch(err => {
 					console.log(err);
-				});
-			return;
-		}
-		var json = JSON.parse(response);
-		if (!json) {
-			message.channel.send('Missing response. Try again later.');
-			return;
-		}
-		const result = json.__main__.result;
-		if (!result) {
-			message.channel.send('Invalid response format. Try again later.');
-			return;
-		}
-		if (!result.hits) {
-			message.channel.send('No matching results. Try something else.');
-			return;
-		}
-		if (!result.hits.total) {
-			message.channel.send(`${args.join(' ')} not found. Try something else.`);
-			return;
-		}
-		if (result.hits.total == 1) {
-			message.channel.send(`https://ashesofcreation.wiki/${uriWikiEncode(result.hits.hits[0]._source.title)}`)
-				.catch(err => {
-					console.log(err);
-				});
-			return;
-		}
-		var count = 1;
-		result.hits.hits.length = command === 'search' ? 10 : 3;
-		const embed = new MessageEmbed().setTitle(`${command} results`).setColor('#e69710');
-		result.hits.hits.forEach(function(hit) {
-			var m = hit.highlight.text.toString();
-			m = m.replace(/<span[^>]+>([^<]+)<\/span>/g, '***$1***');
-			m = m.replace(/\uE000([^\uE001]+)\uE001/g, '***$1***');
-			m = m.replace(/<[^>]+>/g, '');
-			embed.addField(`${count}: <https://ashesofcreation.wiki/${uriWikiEncode(hit._source.title)}>`,`...${m}...`);
-			count++;
+				});				
 		});
+
+		search = uriWikiEncode(search);
+		var query = 'https://ashesofcreation.wiki/Special:Search?cirrusDumpResult=&search=' + search;
+		xhr.open('GET', query, false);
+		xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');	
+		xhr.send();
+	}
+	if (command === 'help') {
+		const embed = new MessageEmbed()
+			.setTitle(`** ashesofcreation.wiki Discord bot **`)
+			.setColor('#e69710')
+			.setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
+			.addField(`\`\`${config.prefix}wiki TEXT\`\``,`Search ashesofcreation.wiki for TEXT (top 3 results)`)
+			.addField(`\`\`${config.prefix}search TEXT\`\``,`Search ashesofcreation.wiki for TEXT (top 10 results)`)
+			.addField('Join our discord!', 'https://discord.gg/HEKx527')
+			.addField('Invite me to your discord!', 'https://goo.gl/DMB3Sr');
 		message.channel.send(embed)
 			.catch(err => {
 				console.log(err);
 			});				
-	});
-
-	search = uriWikiEncode(search);
-	var query = 'https://ashesofcreation.wiki/Special:Search?cirrusDumpResult=&search=' + search;
-	xhr.open('GET', query, false);
-	xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');	
-	xhr.send();
-}
-if (command === 'help') {
-	const embed = new MessageEmbed()
-		.setTitle(`** ashesofcreation.wiki Discord bot **`)
-		.setColor('#e69710')
-		.setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
-		.addField(`\`\`${config.prefix}wiki TEXT\`\``,`Search ashesofcreation.wiki for TEXT (top 3 results)`)
-		.addField(`\`\`${config.prefix}search TEXT\`\``,`Search ashesofcreation.wiki for TEXT (top 10 results)`)
-		.addField('Join our discord!', 'https://discord.gg/HEKx527')
-		.addField('Invite me to your discord!', 'https://goo.gl/DMB3Sr');
-	message.channel.send(embed)
-		.catch(err => {
-			console.log(err);
-		});				
-}
+	}
 });
 client.login(config.token);
