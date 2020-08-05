@@ -55,7 +55,7 @@ client.on('message', async message => {
 		const m = await message.channel.send('test');
 		m.edit(`Ping latency: ${m.createdTimestamp - message.createdTimestamp}ms. API Latency: ${Math.round(client.ping)}ms`);
 	}
-	if (command === 'search' || command === 'wiki') {
+	else if (command === 'search' || command === 'wiki') {
 		var search = args.join(' ');
 		if (search == '') {
 			message.channel.send('https://ashesofcreation.wiki');
@@ -119,13 +119,20 @@ client.on('message', async message => {
 		xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');	
 		xhr.send();
 	}
-	if (command === 'help') {
+	else if (command === 'random') {
+		message.channel.send(`https://ashesofcreation.wiki/Special:Random`)
+			.catch(err => {
+				console.log(err);
+			});
+	}
+	else if (command === 'help') {
 		const embed = new MessageEmbed()
 			.setTitle(`** ashesofcreation.wiki Discord bot **`)
 			.setColor('#e69710')
 			.setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
 			.addField(`\`\`${config.prefix}wiki TEXT\`\``,`Search ashesofcreation.wiki for TEXT (top 3 results)`)
 			.addField(`\`\`${config.prefix}search TEXT\`\``,`Search ashesofcreation.wiki for TEXT (top 10 results)`)
+			.addField(`\`\`${config.prefix}random\`\``,`Random article from  ashesofcreation.wiki`)
 			.addField('Join our discord!', 'https://discord.gg/HEKx527')
 			.addField('Invite me to your discord!', 'https://goo.gl/DMB3Sr');
 		message.channel.send(embed)
