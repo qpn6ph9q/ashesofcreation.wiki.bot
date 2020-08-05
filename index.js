@@ -120,7 +120,7 @@ client.on('message', async message => {
 		xhr.send();
 	}
 	else if (command === 'random') {
-		message.channel.send(`https://ashesofcreation.wiki/Special:Random`)
+		message.channel.send(`https://ashesofcreation.wiki/Special:Random?r=${Math.floor(Math.random() * Math.floor(9999999))}`)
 			.catch(err => {
 				console.log(err);
 			});
