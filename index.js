@@ -119,23 +119,16 @@ client.on('message', async message => {
 		xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');	
 		xhr.send();
 	}
-	else if (command === 'random') {
-		var xhr = new XMLHttpRequest();
-		xhr.onreadystatechange = function() {
-		      if (this.readyState !== 4) {
-			return;
-		      }
-		      if (this.status === 302) {
-			const location = this.getResponseHeader("Location");
-			message.channel.send(location)
-				.catch(err => {
-					console.log(err);
-				});
-		      }
-		  };
-		  xhr.open("GET", `https://ashesofcreation.wiki/Special:Random?r=${Math.floor(Math.random() * Math.floor(9999999))}`, true);
-		  xhr.send();		
-	}
+        else if (command === 'random') {
+                var xhr = new XMLHttpRequest();
+                xhr.addEventListener('load', function() {
+                        const location = xhr.getResponseHeader('location');
+                        message.channel.send(location ? location : 'Random page not available. Try again later.');
+                });
+                xhr.open('GET', 'https://ashesofcreation.wiki/Special:Random', false);
+                xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
+                xhr.send();
+        }
 	else if (command === 'help') {
 		const embed = new MessageEmbed()
 			.setTitle(`** ashesofcreation.wiki Discord bot **`)
