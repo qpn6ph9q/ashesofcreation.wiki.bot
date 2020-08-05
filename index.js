@@ -120,10 +120,21 @@ client.on('message', async message => {
 		xhr.send();
 	}
 	else if (command === 'random') {
-		message.channel.send(`https://ashesofcreation.wiki/Special:Random?r=${Math.floor(Math.random() * Math.floor(9999999))}`)
-			.catch(err => {
-				console.log(err);
-			});
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function() {
+		      if (this.readyState !== 4) {
+			return;
+		      }
+		      if (this.status === 302) {
+			const location = this.getResponseHeader("Location");
+			message.channel.send(location)
+				.catch(err => {
+					console.log(err);
+				});
+		      }
+		  };
+		  xhr.open("GET", `https://ashesofcreation.wiki/Special:Random?r=${Math.floor(Math.random() * Math.floor(9999999))}`, true);
+		  xhr.send();		
 	}
 	else if (command === 'help') {
 		const embed = new MessageEmbed()
