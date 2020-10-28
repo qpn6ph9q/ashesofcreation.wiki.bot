@@ -5,7 +5,7 @@ const {
 	MessageReaction	
 } = require('discord.js');
 const client = new Client();
-const config = require('./config.json');
+const base_config = require('./config.json');
 const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 
 function ucFirst(str) {
@@ -44,7 +44,7 @@ client.on('guildDelete', guild => {
 client.on('message', async message => {
 	if (message.author.bot)
 		return;
-
+	const config = message.member.guild.id in base_config ? base_config[message.member.guild.id] : base_config;
 	if (message.content.indexOf(config.prefix) !== 0)
 		return;
 
@@ -144,4 +144,4 @@ client.on('message', async message => {
 			});				
 	}
 });
-client.login(config.token);
+client.login(base_config.token);
