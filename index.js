@@ -41,6 +41,8 @@ client.on('guildDelete', guild => {
 	setActivity();
 });
 
+global.timestamp = false;
+
 client.on('message', async message => {
 	if (message.author.bot)
 		return;
@@ -48,7 +50,11 @@ client.on('message', async message => {
 	const content = message.content === '+help' ? `${config.prefix}help` : message.content;
 	if (content.indexOf(config.prefix) !== 0)
 		return;
-
+	if(config.command_cooldown && global.timestamp && message.createdTimestamp - global.timestamp < config.command_cooldown)
+	   	return;
+	
+	global.timestamp = message.createdTimestamp;
+	
 	const args = content.slice(config.prefix.length).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
 
@@ -139,6 +145,9 @@ client.on('message', async message => {
 			.addField(`\`\`${config.prefix}random\`\``,`Random article from  ashesofcreation.wiki`)
 			.addField('Join our discord!', 'https://discord.gg/HEKx527')
 			.addField('Invite me to your discord!', 'https://goo.gl/DMB3Sr');
+		if(config.command_cooldown)
+			embed.setFooter(`Command cooldown is set to ${config.command_cooldown/1000} seconds`);
+		
 		message.channel.send(embed)
 			.catch(err => {
 				console.log(err);
