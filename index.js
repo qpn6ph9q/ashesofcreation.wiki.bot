@@ -129,7 +129,7 @@ client.on('message', async message => {
                 xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
                 xhr.send();
         }
-	else if (command === 'help') {
+	else if (command === 'help' || command === 'wikihelp') {
 		const embed = new MessageEmbed()
 			.setTitle(`** ashesofcreation.wiki Discord bot **`)
 			.setColor('#e69710')
