@@ -44,8 +44,7 @@ client.on('guildDelete', guild => {
 client.on('message', async message => {
 	if (message.author.bot)
 		return;
-	const config = message.member.guild.id in base_config ? base_config[message.mem
-									    ber.guild.id] : base_config;
+	const config = message.member.guild.id in base_config ? base_config[message.member.guild.id] : base_config;
 	const content = command === '+help' ? `${config.prefix}help` : message.content;
 	if (content.indexOf(config.prefix) !== 0)
 		return;
