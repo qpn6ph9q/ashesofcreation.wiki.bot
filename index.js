@@ -136,6 +136,9 @@ client.on('message', async message => {
                 xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
                 xhr.send();
         }
+        else if (command === 'quiz') {
+		message.channel.send('https://quiz.ashesofcreation.wiki/');
+        }
 	else if (command === 'help') {
 		const embed = new MessageEmbed()
 			.setTitle(`** ashesofcreation.wiki Discord bot **`)
@@ -143,6 +146,7 @@ client.on('message', async message => {
 			.setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
 			.addField(`\`\`${config.prefix}wiki TEXT\`\``,`Search ashesofcreation.wiki for TEXT (top 3 results)`)
 			.addField(`\`\`${config.prefix}random\`\``,`Random article from  ashesofcreation.wiki`)
+			.addField(`\`\`${config.prefix}quiz\`\``,`Take the Ashes of Creation Trivianator quiz`)
 			.addField('Join our discord!', 'https://discord.gg/HEKx527')
 			.addField('Invite me to your discord!', 'https://goo.gl/DMB3Sr');
 		if(config.command_cooldown)
