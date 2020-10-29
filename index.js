@@ -41,7 +41,7 @@ client.on('guildDelete', guild => {
 	setActivity();
 });
 
-global.timestamp = false;
+global.timestamp = {};
 
 client.on('message', async message => {
 	if (message.author.bot)
@@ -50,10 +50,10 @@ client.on('message', async message => {
 	const content = message.content === '+help' ? `${config.prefix}help` : message.content;
 	if (content.indexOf(config.prefix) !== 0)
 		return;
-	if(config.command_cooldown && global.timestamp && message.createdTimestamp - global.timestamp < config.command_cooldown)
+	if(config.command_cooldown && global.timestamp[message.channel.id] && message.createdTimestamp - global.timestamp[message.channel.id] < config.command_cooldown)
 	   	return;
 	
-	global.timestamp = message.createdTimestamp;
+	global.timestamp[message.channel.id] = message.createdTimestamp;
 	
 	const args = content.slice(config.prefix.length).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
