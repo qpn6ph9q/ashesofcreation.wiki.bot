@@ -13,7 +13,7 @@ function ucFirst(str) {
 }
 
 function setActivity() {
-	client.user.setActivity(` ${client.guilds.cache.size} discords | +help`, { type: 'LISTENING' })
+	client.user.setActivity(` on ${client.guilds.cache.size} discords | +help`, { type: 'PLAYING' })
 }
 
 function uriWikiEncode(uri) {
@@ -50,11 +50,14 @@ client.on('message', async message => {
 	const content = message.content === '+help' ? `${config.prefix}help` : message.content;
 	if (content.indexOf(config.prefix) !== 0)
 		return;
-	if(config.command_cooldown && global.timestamp[message.channel.id] && message.createdTimestamp - global.timestamp[message.channel.id] < config.command_cooldown)
+	if(config.command_cooldown && global.timestamp[message.channel.id] && message.createdTimestamp - global.timestamp[message.channel.id] < config.command_cooldown) {
+		const m = await message.channel.send(`Command cooldown is in effect. ${(message.createdTimestamp - global.timestamp[message.channel.id])/1000} seconds remaining`);
+		setTimeout(() => {
+			m.delete();
+		}, 1500);
 	   	return;
-	
+	}	
 	global.timestamp[message.channel.id] = message.createdTimestamp;
-	
 	const args = content.slice(config.prefix.length).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
 
@@ -63,13 +66,13 @@ client.on('message', async message => {
 		m.edit(`Ping latency: ${m.createdTimestamp - message.createdTimestamp}ms. API Latency: ${Math.round(client.ping)}ms`);
 	}
 	else if (command === 'wiki') {
-		var search = args.join(' ');
+		const search = args.join(' ');
 		if (search == '') {
 			message.channel.send('https://ashesofcreation.wiki');
 			return;
 		}
-		var xhr = new XMLHttpRequest();
-		xhr.addEventListener('load', function() {
+		const xhr = new XMLHttpRequest();
+		xhr.addEventListener('load', () => {
 			var response = xhr.responseText;
 			if (!response) {
 				message.channel.send(`https://ashesofcreation.wiki/${uriWikiEncode(search)}`)
@@ -78,7 +81,7 @@ client.on('message', async message => {
 					});
 				return;
 			}
-			var json = JSON.parse(response);
+			const json = JSON.parse(response);
 			if (!json) {
 				message.channel.send('Missing response. Try again later.');
 				return;
@@ -103,32 +106,30 @@ client.on('message', async message => {
 					});
 				return;
 			}
-			var count = 1;
-			result.hits.hits.length = command === 'search' ? 10 : 3;
+			result.hits.hits.length = 3;
 			const embed = new MessageEmbed().setTitle(`${command} results`).setColor('#e69710');
-			result.hits.hits.forEach(function(hit) {
-				var m = hit.highlight.text.toString();
+			let count = 1;
+			for(const hit of result.hits.hits) {
+				let m = hit.highlight.text.toString();
 				m = m.replace(/<span[^>]+>([^<]+)<\/span>/g, '***$1***');
 				m = m.replace(/\uE000([^\uE001]+)\uE001/g, '***$1***');
 				m = m.replace(/<[^>]+>/g, '');
 				embed.addField(`${count}: <https://ashesofcreation.wiki/${uriWikiEncode(hit._source.title)}>`,`...${m}...`);
 				count++;
-			});
+			};
 			message.channel.send(embed)
 				.catch(err => {
 					console.log(err);
 				});				
 		});
-
-		search = uriWikiEncode(search);
-		var query = 'https://ashesofcreation.wiki/Special:Search?cirrusDumpResult=&search=' + search;
+		const query = 'https://ashesofcreation.wiki/Special:Search?cirrusDumpResult=&search=' + uriWikiEncode(search);
 		xhr.open('GET', query, false);
 		xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');	
 		xhr.send();
 	}
         else if (command === 'random') {
-                var xhr = new XMLHttpRequest();
-                xhr.addEventListener('load', function() {
+                const xhr = new XMLHttpRequest();
+                xhr.addEventListener('load', () => {
                         const location = xhr.getResponseHeader('location');
                         message.channel.send(location ? location : 'Random page not available. Try again later.');
                 });
@@ -150,8 +151,7 @@ client.on('message', async message => {
 			.addField('Join our discord!', 'https://discord.gg/HEKx527')
 			.addField('Invite me to your discord!', 'https://goo.gl/DMB3Sr');
 		if(config.command_cooldown)
-			embed.setFooter(`Command cooldown is set to ${config.command_cooldown/1000} seconds`);
-		
+			embed.setFooter(`Command cooldown is set to ${config.command_cooldown/1000} seconds`);		
 		message.channel.send(embed)
 			.catch(err => {
 				console.log(err);
