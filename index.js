@@ -51,7 +51,7 @@ client.on('message', async message => {
 	if (content.indexOf(config.prefix) !== 0)
 		return;
 	if(config.command_cooldown && global.timestamp[message.channel.id] && message.createdTimestamp - global.timestamp[message.channel.id] < config.command_cooldown) {
-		const m = await message.channel.send(`Command cooldown is in effect. ${Math.floor(config.command_cooldown - message.createdTimestamp - global.timestamp[message.channel.id])/1000} seconds remaining`);
+		const m = await message.channel.send(`Command cooldown is in effect. ${Math.floor((config.command_cooldown - (message.createdTimestamp - global.timestamp[message.channel.id]))/1000)} seconds remaining`);
 		setTimeout(() => {
 			m.delete();
 		}, 2000);
