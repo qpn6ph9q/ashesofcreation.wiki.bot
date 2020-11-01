@@ -82,7 +82,7 @@ client.on('message', async message => {
 				return;
 			}
 			const json = JSON.parse(response);
-			if (!json) {
+			if (!json || !json.__main__ || !json.__main__.result) {
 				message.channel.send('Missing response. Try again later.');
 				return;
 			}
@@ -91,7 +91,7 @@ client.on('message', async message => {
 				message.channel.send('Invalid response format. Try again later.');
 				return;
 			}
-			if (!result.hits) {
+			if (!result.hits || !result.hits.hits || !result.hits.hits.length) {
 				message.channel.send('No matching results. Try something else.');
 				return;
 			}
@@ -110,6 +110,8 @@ client.on('message', async message => {
 			const embed = new MessageEmbed().setTitle(`${command} results`).setColor('#e69710');
 			let count = 1;
 			for(const hit of result.hits.hits) {
+				if(!hit || !hit._source || !hit._source.title || !hit.highlight || !hit.highlight.text)
+					continue;					
 				let m = hit.highlight.text.toString();
 				m = m.replace(/<span[^>]+>([^<]+)<\/span>/g, '***$1***');
 				m = m.replace(/\uE000([^\uE001]+)\uE001/g, '***$1***');
@@ -117,7 +119,7 @@ client.on('message', async message => {
 				embed.addField(`${count}: <https://ashesofcreation.wiki/${uriWikiEncode(hit._source.title)}>`,`...${m}...`);
 				count++;
 			};
-			message.channel.send(embed)
+			message.channel.send(count == 1 ? 'Something went wrong. Try again later.' : embed)
 				.catch(err => {
 					console.log(err);
 				});				
