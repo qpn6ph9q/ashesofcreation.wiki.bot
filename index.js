@@ -50,7 +50,11 @@ client.on('message', async message => {
 	const content = message.content === '+help' ? `${config.prefix}help` : message.content;
 	if (content.indexOf(config.prefix) !== 0)
 		return;
-	if(config.command_cooldown && global.timestamp[message.channel.id] && message.createdTimestamp - global.timestamp[message.channel.id] < config.command_cooldown) {
+	const args = content.slice(config.prefix.length).trim().split(/ +/g);
+	const command = args.shift().toLowerCase();
+	if(command !== 'ping' && command !== 'wiki' && command !== 'random' && command !== 'quiz' && command !== 'help')
+		return;
+	if (config.command_cooldown && global.timestamp[message.channel.id] && message.createdTimestamp - global.timestamp[message.channel.id] < config.command_cooldown) {
 		const m = await message.channel.send(`Command cooldown is in effect. ${Math.floor((config.command_cooldown - (message.createdTimestamp - global.timestamp[message.channel.id]))/1000)} seconds remaining`);
 		setTimeout(() => {
 			m.delete();
@@ -58,9 +62,6 @@ client.on('message', async message => {
 	   	return;
 	}	
 	global.timestamp[message.channel.id] = message.createdTimestamp;
-	const args = content.slice(config.prefix.length).trim().split(/ +/g);
-	const command = args.shift().toLowerCase();
-
 	if (command === 'ping') {
 		const m = await message.channel.send('test');
 		m.edit(`Ping latency: ${m.createdTimestamp - message.createdTimestamp}ms. API Latency: ${Math.round(client.ping)}ms`);
