@@ -137,7 +137,7 @@ client.on('message', async message => {
         else if (command === 'random') {
                 const xhr = new XMLHttpRequest();
                 xhr.addEventListener('load', () => {
-                        const location = uriWikiDecode(xhr.getResponseHeader('location'));
+                        const location = xhr.getResponseHeader('location');
                         message.channel.send(location || 'Random page not available. Try again later.');
                 });
                 xhr.open('GET', 'https://ashesofcreation.wiki/Special:Random', false);
