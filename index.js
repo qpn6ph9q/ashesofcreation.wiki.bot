@@ -67,14 +67,14 @@ client.on('message', async message => {
 		m.edit(`Ping latency: ${m.createdTimestamp - message.createdTimestamp}ms. API Latency: ${Math.round(client.ping)}ms`);
 	}
 	else if (command === 'wiki') {
-		const search = args.join(' ');
+		const search = args.join(' ').replace(/_/g, ' ');
 		if (search == '') {
 			message.channel.send('https://ashesofcreation.wiki');
 			return;
 		}
 		const xhr = new XMLHttpRequest();
 		xhr.addEventListener('load', () => {
-			var response = xhr.responseText;
+			const response = xhr.responseText;
 			if (!response) {
 				message.channel.send(`https://ashesofcreation.wiki/${uriWikiEncode(search)}`)
 					.catch(err => {
