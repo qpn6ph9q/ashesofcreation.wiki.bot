@@ -26,6 +26,10 @@ function uriWikiEncode(uri) {
 	return uri;
 }
 
+function uriWikiDecode(uri) {
+	return uriWikiEncode(decodeURI(uri));
+}
+
 client.on('ready', () => {
 	console.log(`Bot starting in ${client.guilds.cache.size} servers with ${client.users.cache.size} users`);
 	setActivity();
@@ -125,7 +129,7 @@ client.on('message', async message => {
 					console.log(err);
 				});				
 		});
-		const query = 'https://ashesofcreation.wiki/Special:Search?cirrusDumpResult=&search=' + uriWikiEncode(search);
+		const query = `https://ashesofcreation.wiki/Special:Search?cirrusDumpResult=&search=${uriWikiEncode(search)}`;
 		xhr.open('GET', query, false);
 		xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');	
 		xhr.send();
@@ -133,8 +137,8 @@ client.on('message', async message => {
         else if (command === 'random') {
                 const xhr = new XMLHttpRequest();
                 xhr.addEventListener('load', () => {
-                        const location = xhr.getResponseHeader('location');
-                        message.channel.send(location ? location : 'Random page not available. Try again later.');
+                        const location = uriWikiDecode(xhr.getResponseHeader('location'));
+                        message.channel.send(location || 'Random page not available. Try again later.');
                 });
                 xhr.open('GET', 'https://ashesofcreation.wiki/Special:Random', false);
                 xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
