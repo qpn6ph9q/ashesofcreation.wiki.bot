@@ -145,7 +145,7 @@ client.on('message', async message => {
                 xhr.send();
         }
         else if (command === 'quiz') {
-		message.channel.send('https://quiz.ashesofcreation.wiki/');
+		message.channel.send('https://quiz.ashesofcreation.wiki/quiz_list_guest/');
         }
 	else if (command === 'help') {
 		const embed = new MessageEmbed()
