@@ -140,7 +140,11 @@ client.on('message', async message => {
                         const location = xhr.getResponseHeader('location');
                         message.channel.send(location || 'Random page not available. Try again later.');
                 });
-                xhr.open('GET', 'https://ashesofcreation.wiki/Special:Random', false);
+		const category = ucFirst(args.join('_').replace(/ /g, '_'));
+		if(category)
+			xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomInCategory/${category}`, false);
+		else
+                	xhr.open('GET', 'https://ashesofcreation.wiki/Special:Random', false);
                 xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
                 xhr.send();
         }
