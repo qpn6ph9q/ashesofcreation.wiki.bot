@@ -51,7 +51,7 @@ client.on('message', async message => {
 	if (message.author.bot)
 		return;
 	const config = message.member.guild.id in base_config ? base_config[message.member.guild.id] : base_config;
-	const content = message.content === '+help' ? `${config.prefix}help` : message.content;
+	const content = message.content.replace(/^[!+](wiki|help)/, `${config.prefix}$1`);
 	if (content.indexOf(config.prefix) !== 0)
 		return;
 	const args = content.slice(config.prefix.length).trim().split(/ +/g);
