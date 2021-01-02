@@ -86,6 +86,11 @@ client.on('message', async message => {
 					});
 				return;
 			}
+			const location = xhr.getResponseHeader('location');
+			if(location) {
+                        	message.channel.send(`https://ashesofcreation.wiki${location}`);
+				return;
+			}
 			const json = JSON.parse(response);
 			if (!json || !json.__main__ || !json.__main__.result) {
 				message.channel.send('Missing response. Try again later.');
