@@ -68,7 +68,7 @@ client.on('message', async message => {
 	global.timestamp[message.channel.id] = message.createdTimestamp;
 	if (command === 'ping') {
 		const m = await message.channel.send('test');
-		m.edit(`Ping latency: ${m.createdTimestamp - message.createdTimestamp}ms. API Latency: ${Math.round(client.ping)}ms`);
+		m.edit(`Ping latency: ${m.createdTimestamp - message.createdTimestamp}ms. API Latency: ${Math.round(client.ws.ping)}ms`);
 	}
 	else if (command === 'wiki') {
 		const search = args.join(' ').replace(/_/g, ' ');
