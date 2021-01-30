@@ -141,11 +141,17 @@ client.on('message', async message => {
 	}
         else if (command === 'random') {
                 const xhr = new XMLHttpRequest();
+		let category = ucFirst(args.join('_').replace(/ /g, '_'));
                 xhr.addEventListener('load', () => {
                         const location = xhr.getResponseHeader('location');
-                        message.channel.send(location || 'Random page not available. Try again later.');
+			if(!location && !category.match(/s$/i)) {
+				category += 's';
+				xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomInCategory/${category}`, false);
+				xhr.send();
+			}
+			else
+				message.channel.send(location || 'Random page not available. Try again later.');
                 });
-		const category = ucFirst(args.join('_').replace(/ /g, '_'));
 		if(category)
 			xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomInCategory/${category}`, false);
 		else
