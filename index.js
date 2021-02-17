@@ -46,6 +46,7 @@ client.on('guildDelete', guild => {
 global.timestamp = {};
 async function dispatcher(message) {
     if (message.author.bot) return;
+    if (!message.content.match(/^[!+]/)) return;
     const config = message.member.guild.id in base_config ? base_config[message.member.guild.id] : base_config;
     const args = message.content.split(/ +/g);
     const command = args.shift().toLowerCase();
@@ -151,7 +152,15 @@ async function dispatcher(message) {
     };
     const help = async () => {
         if (await cooldown()) return;
-        const embed = new MessageEmbed().setTitle(`** ashesofcreation.wiki Discord bot **`).setColor('#e69710').setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!').addField(`\`\`${config.prefix}wiki TEXT\`\``, `Search ashesofcreation.wiki for TEXT (top 3 results)`).addField(`\`\`${config.prefix}random\`\``, `Random article from  ashesofcreation.wiki`).addField(`\`\`${config.prefix}quiz\`\``, `Take the Ashes of Creation Trivianator quiz`).addField('Join our discord!', 'https://discord.gg/HEKx527').addField('Invite me to your discord!', 'https://goo.gl/DMB3Sr');
+        const embed = new MessageEmbed()
+            .setTitle(`** ashesofcreation.wiki Discord bot **`)
+            .setColor('#e69710')
+            .setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
+            .addField(`\`\`${config.prefix}wiki TEXT\`\``, `Search ashesofcreation.wiki for TEXT (top 3 results)`)
+            .addField(`\`\`${config.prefix}random\`\``, `Random article from  ashesofcreation.wiki`)
+            .addField(`\`\`${config.prefix}quiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
+            .addField('Join our discord!', 'https://discord.gg/HEKx527')
+            .addField('Invite me to your discord!', 'https://goo.gl/DMB3Sr');
         if (config.command_cooldown) embed.setFooter(`Command cooldown is set to ${config.command_cooldown/1000} seconds`);
         message.channel.send(embed).catch(err => {
             console.error(err);
