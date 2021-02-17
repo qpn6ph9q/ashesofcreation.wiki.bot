@@ -54,13 +54,12 @@ async function dispatcher(message) {
         const args = message.content.split(/ +/g);
         const command = args.shift().toLowerCase();
 	const cooldown = async () => {
-		return false;
 		if (config.command_cooldown && global.timestamp[message.channel.id] && message.createdTimestamp - global.timestamp[message.channel.id] < config.command_cooldown) {
                 	const m = await message.channel.send(
 				`Command cooldown is in effect. ${Math.floor((config.command_cooldown - (message.createdTimestamp - global.timestamp[message.channel.id]))/1000)} seconds remaining`)
-			global.timestamp[message.channel.id] = message.createdTimestamp;
 			return true;
 		}
+		global.timestamp[message.channel.id] = message.createdTimestamp;
 		return false;
 	};
 	const ping = async () => {       
