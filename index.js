@@ -21,11 +21,12 @@ function setActivity() {
 function uriWikiEncode(uri) {
     uri = ucFirst(uri);
     uri = uri.replace(/ /g, '_');
-    uri = uri.replace(/&/g, '%26');
-    uri = uri.replace(/\//g, '%2F');
-    uri = uri.replace(/=/g, '%3D');
-    uri = uri.replace(/\?/g, '%3F');
-    return uri;
+    return encodeURI(uri);
+    //uri = uri.replace(/&/g, '%26');
+    //uri = uri.replace(/\//g, '%2F');
+    //uri = uri.replace(/=/g, '%3D');
+    //uri = uri.replace(/\?/g, '%3F');
+    //return uri;
 }
 
 function uriWikiDecode(uri) {
