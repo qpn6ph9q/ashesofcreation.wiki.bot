@@ -7,31 +7,22 @@ const {
 const client = new Client();
 const base_config = require('./config.json');
 const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
-
-function ucFirst(str) {
+const ucFirst = (str) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-function setActivity() {
+};
+const  setActivity = () => {
     client.user.setActivity(` on ${client.guilds.cache.size} discords | +help`, {
         type: 'PLAYING'
     })
-}
-
-function uriWikiEncode(uri) {
+};
+const  uriWikiEncode = (uri) => {
     uri = ucFirst(uri);
     uri = uri.replace(/ /g, '_');
     return encodeURI(uri);
-    //uri = uri.replace(/&/g, '%26');
-    //uri = uri.replace(/\//g, '%2F');
-    //uri = uri.replace(/=/g, '%3D');
-    //uri = uri.replace(/\?/g, '%3F');
-    //return uri;
-}
-
-function uriWikiDecode(uri) {
+};
+const uriWikiDecode = (uri) => {
     return uriWikiEncode(decodeURI(uri));
-}
+};
 client.on('ready', () => {
     console.log(`Bot starting in ${client.guilds.cache.size} servers with ${client.users.cache.size} users`);
     setActivity();
@@ -45,7 +36,7 @@ client.on('guildDelete', guild => {
     setActivity();
 });
 global.timestamp = {};
-async function dispatcher(message) {
+const dispatcher = async (message) => {
     if (message.author.bot) return;
     if (!message.content.match(/^[!+]/)) return;
     const config = message.member.guild.id in base_config ? base_config[message.member.guild.id] : base_config;
@@ -157,9 +148,9 @@ async function dispatcher(message) {
             .setTitle(`** ashesofcreation.wiki Discord bot **`)
             .setColor('#e69710')
             .setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
-            .addField(`\`\`${config.prefix}wiki TEXT\`\``, `Search ashesofcreation.wiki for TEXT (top 3 results)`)
-            .addField(`\`\`${config.prefix}random\`\``, `Random article from  ashesofcreation.wiki`)
-            .addField(`\`\`${config.prefix}quiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
+            .addField(`\`\`+wiki TEXT\`\``, `Search ashesofcreation.wiki for TEXT (top 3 results)`)
+            .addField(`\`\`+random\`\``, `Random article from  ashesofcreation.wiki`)
+            .addField(`\`\`+quiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
             .addField('Join our discord!', 'https://discord.gg/HEKx527')
             .addField('Invite me to your discord!', 'https://goo.gl/DMB3Sr');
         if (config.command_cooldown) embed.setFooter(`Command cooldown is set to ${config.command_cooldown/1000} seconds`);
@@ -184,7 +175,7 @@ async function dispatcher(message) {
         default:
             return;
     }
-}
+};
 client.on('message', async message => {
     await dispatcher(message).catch((e) => {
         console.error({
