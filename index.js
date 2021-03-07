@@ -142,7 +142,7 @@ const dispatcher = async (message) => {
         const xhr = new XMLHttpRequest();
         let category = ucFirst(args.join('_').replace(/ /g, '_'));
         if (category)
-            await xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomInCategory/${category}`, false);
+            await xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomArticleInCategory/${category}`, false);
         else
             await xhr.open('GET', 'https://ashesofcreation.wiki/Special:Random', false);
         await xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
@@ -150,7 +150,7 @@ const dispatcher = async (message) => {
         const location = xhr.getResponseHeader('location');
         if (!location && !category.match(/s$/i)) {
             category += 's';
-            xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomInCategory/${category}`, false);
+            xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomArticleInCategory/${category}`, false);
             xhr.send();
         } else 
             message.channel.send(location ? await embedPage(location, is_test) : 'Random page not available. Try again later.');
@@ -166,7 +166,8 @@ const dispatcher = async (message) => {
             .setColor('#e69710')
             .setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
             .addField(`\`\`+wiki TEXT\`\``, `Search ashesofcreation.wiki for TEXT (top 3 results)`)
-            .addField(`\`\`+random\`\``, `Random article from  ashesofcreation.wiki`)
+            .addField(`\`\`+random\`\``, `Random article from ashesofcreation.wiki`)
+	    .addField(`\`\`+random CATEGORY\`\``, `Random article in CATEGORY`)
             .addField(`\`\`+quiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
             .addField('Join our discord!', 'https://discord.gg/HEKx527')
             .addField('Invite me to your discord!', 'https://goo.gl/DMB3Sr');
