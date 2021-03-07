@@ -140,20 +140,20 @@ const dispatcher = async (message) => {
     const random = async (is_test = true) => {
         if (await cooldown()) return;
         const xhr = new XMLHttpRequest();
-        let category = ucFirst(args.join('_').replace(/ /g, '_'));
+        const category = ucFirst(args.join('_').replace(/ /g, '_'));
         if (category)
             await xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomInCategory/${category}`, false);
         else
             await xhr.open('GET', 'https://ashesofcreation.wiki/Special:Random', false);
         await xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
         await xhr.send(null);
-        const location = xhr.getResponseHeader('location');
+        let location = xhr.getResponseHeader('location');
         if (!location && !category.match(/s$/i)) {
-            category += 's';
-            xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomInCategory/${category}`, false);
-            xhr.send();
-        } else 
-            message.channel.send(location ? await embedPage(location, is_test) : 'Random page not available. Try again later.');
+            await xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomInCategory/${category}s`, false);
+            await xhr.send(null);
+            location = xhr.getResponseHeader('location');
+        }  
+        message.channel.send(location ? await embedPage(location, is_test) : 'Random page not available. Try again later.');
     };
     const quiz = async () => {
         if (await cooldown()) return;
