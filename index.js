@@ -27,8 +27,6 @@ const uriWikiDecode = (uri) => {
     return uriWikiEncode(decodeURI(uri));
 };
 const embedPage = async (title) => {
-    return `https://ashesofcreation.wiki/${uriWikiEncode(title)}`;
-
     const uri = `https://ashesofcreation.wiki/api.php?action=query&format=json&prop=pageimages%7Cextracts%7Cpageprops&list=&titles=${uriWikiEncode(title)}&pithumbsize=320&formatversion=2`;
     const xhr = new XMLHttpRequest();
     await xhr.open('GET', uri, false);
@@ -76,7 +74,7 @@ const dispatcher = async (message) => {
         const m = await message.channel.send('test');
         m.edit(`Ping latency: ${m.createdTimestamp - message.createdTimestamp}ms. API Latency: ${Math.round(client.ws.ping)}ms`);
     };
-    const wiki = async () => {
+    const wiki = async (is_test = false) => {
         if (await cooldown()) return;
         const search = args.join(' ').replace(/_/g, ' ');
         if (search == '') {
@@ -93,20 +91,13 @@ const dispatcher = async (message) => {
             return message.channel.send('Page not found. Please try again later.');
         const response = xhr.responseText;
         //console.log(search);
-        if (!response) {
-            const result = await embedPage(search);
-            message.channel.send(result /*`https://ashesofcreation.wiki/${uriWikiEncode(search)}`*/ ).catch(err => {
+        if (!response)
+            return message.channel.send(is_test ? await embedPage(search) : `https://ashesofcreation.wiki/${uriWikiEncode(search)}` ).catch(err => {
                 console.error(err);
             });
-            return;
-        }
         const location = xhr.getResponseHeader('location');
-        if (location) {
-            const result = location.replace(/^\//, '');
-	    message.channel.send(await embedPage(result));
-            //message.channel.send(`https://ashesofcreation.wiki${location}`);
-            return;
-        }
+        if (location)
+	    return message.channel.send(is_test ? await embedPage(location.replace(/^\//, '') : `https://ashesofcreation.wiki${location}`);
         const json = JSON.parse(response);
         if (!json || !json.__main__ || !json.__main__.result) {
             message.channel.send('Missing response. Try again later.');
@@ -194,6 +185,8 @@ const dispatcher = async (message) => {
         case "+wiki":
         case "!wiki":
             return await wiki();
+        case "+test":
+            return await wiki(true);
         case "+random":
         case "!random":
             return await random();
