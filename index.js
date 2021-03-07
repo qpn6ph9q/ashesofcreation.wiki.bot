@@ -97,7 +97,7 @@ const dispatcher = async (message) => {
             });
         const location = xhr.getResponseHeader('location');
         if (location)
-	    return message.channel.send(is_test ? await embedPage(location.replace(/^\//, '') : `https://ashesofcreation.wiki${location}`);
+	    return message.channel.send(is_test ? await embedPage(location.replace(/^\//, '')) : `https://ashesofcreation.wiki${location}`);
         const json = JSON.parse(response);
         if (!json || !json.__main__ || !json.__main__.result) {
             message.channel.send('Missing response. Try again later.');
