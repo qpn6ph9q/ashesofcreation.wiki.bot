@@ -26,8 +26,16 @@ const uriWikiEncode = (uri) => {
 const uriWikiDecode = (uri) => {
     return uriWikiEncode(decodeURI(uri));
 };
-const embedPage = async (title) => {
-    const uri = `https://ashesofcreation.wiki/api.php?action=query&format=json&prop=pageimages%7Cextracts%7Cpageprops&list=&titles=${uriWikiEncode(title)}&pithumbsize=320&formatversion=2`;
+const THUMBNAIL_SIZE = 400;
+const DESCRIPTION_SIZE = 349;
+const embedPage = async (title, is_test = false, is_redirect = false) => {
+    let matches;
+    if(matches = title.match(/\/([^\/]+)$/))
+        title = matches[1];
+    if(!is_test)
+	return `https://ashesofcreation.wiki/${uriWikiEncode(title)}`;
+    //console.log({title:title});
+    const uri = `https://ashesofcreation.wiki/api.php?action=query&format=json&prop=pageimages%7Cextracts%7Cpageprops&list=&titles=${uriWikiEncode(title)}&redirects=1&pithumbsize=${THUMBNAIL_SIZE}&formatversion=2`;
     const xhr = new XMLHttpRequest();
     await xhr.open('GET', uri, false);
     await xhr.send(null);
@@ -38,6 +46,8 @@ const embedPage = async (title) => {
     const json = JSON.parse(response);
     if (!json || !json.query || !json.query.pages || !json.query.pages.length)
         return 'Missing response. Try again later.';
+    if(!is_redirect && json.query.redirects && json.query.redirects.length && json.query.redirects[0].to)
+	return await embedPage(uriWikiEncode(json.query.redirects[0].to), is_test, true);
     const page = json.query.pages[0];
     //console.log(page);
     const embed = new MessageEmbed()
@@ -47,10 +57,11 @@ const embedPage = async (title) => {
         .setURL(`https://ashesofcreation.wiki/${uriWikiEncode(title)}`);
     let description = page.extract;
     if(!description && page.pageprops && page.pageprops.description) description = page.pageprops.description;
-    description = stripHtml(description).result;
-    if (description.length > 350) description = description.substring(0, 350).trim() + '...';
-    if (description) embed.setDescription(description);
-    //if(page.images && page.images.length) embed.setImage(`https://ashesofcreation.wiki/File:${page.pageimage}`);
+    if(description) {
+	description = stripHtml(description).result;
+        if (description.length > DESCRIPTION_SIZE) description = description.substring(0, DESCRIPTION_SIZE).trim() + '...';
+        embed.setDescription(description);
+    }
     if (page.thumbnail && page.thumbnail.source) embed.setImage(page.thumbnail.source);
     return embed;
 };
@@ -74,7 +85,7 @@ const dispatcher = async (message) => {
         const m = await message.channel.send('test');
         m.edit(`Ping latency: ${m.createdTimestamp - message.createdTimestamp}ms. API Latency: ${Math.round(client.ws.ping)}ms`);
     };
-    const wiki = async (is_test = false) => {
+    const wiki = async (is_test = true) => {
         if (await cooldown()) return;
         const search = args.join(' ').replace(/_/g, ' ');
         if (search == '') {
@@ -86,42 +97,30 @@ const dispatcher = async (message) => {
         await xhr.open('GET', query, false);
         xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
         await xhr.send(null);
-        //console.log(xhr.readyState, xhr.status);
         if (xhr.readyState != 4)
             return message.channel.send('Page not found. Please try again later.');
         const response = xhr.responseText;
-        //console.log(search);
         if (!response)
-            return message.channel.send(is_test ? await embedPage(search) : `https://ashesofcreation.wiki/${uriWikiEncode(search)}` ).catch(err => {
+            return message.channel.send(await embedPage(search, is_test)).catch(err => {
                 console.error(err);
             });
         const location = xhr.getResponseHeader('location');
-        if (location)
-	    return message.channel.send(is_test ? await embedPage(location.replace(/^\//, '')) : `https://ashesofcreation.wiki${location}`);
+        if (location) 
+	    return message.channel.send(await embedPage(location, is_test));
         const json = JSON.parse(response);
-        if (!json || !json.__main__ || !json.__main__.result) {
-            message.channel.send('Missing response. Try again later.');
-            return;
-        }
+        if (!json || !json.__main__ || !json.__main__.result)
+            return message.channel.send('Missing response. Try again later.');
         const result = json.__main__.result;
-        if (!result) {
-            message.channel.send('Invalid response format. Try again later.');
-            return;
-        }
-        if (!result.hits || !result.hits.hits || !result.hits.hits.length) {
-            message.channel.send('No matching results. Try something else.');
-            return;
-        }
-        if (!result.hits.total) {
-            message.channel.send(`${args.join(' ')} not found. Try something else.`);
-            return;
-        }
-        if (result.hits.total == 1) {
-            message.channel.send(`https://ashesofcreation.wiki/${uriWikiEncode(result.hits.hits[0]._source.title)}`).catch(err => {
+        if (!result)
+            return message.channel.send('Invalid response format. Try again later.');
+        if (!result.hits || !result.hits.hits || !result.hits.hits.length)
+            return message.channel.send('No matching results. Try something else.');
+        if (!result.hits.total)
+            return message.channel.send(`${args.join(' ')} not found. Try something else.`);
+        if (result.hits.total == 1)
+            return message.channel.send(await embedPage(result.hits.hits[0]._source.title, is_test)).catch(err => {
                 console.error(err);
             });
-            return;
-        }
         result.hits.hits.length = 3;
         const embed = new MessageEmbed().setTitle(`${command} results`).setColor('#e69710');
         let count = 1;
@@ -138,7 +137,7 @@ const dispatcher = async (message) => {
             console.error(err);
         });
     };
-    const random = async () => {
+    const random = async (is_test = true) => {
         if (await cooldown()) return;
         const xhr = new XMLHttpRequest();
         let category = ucFirst(args.join('_').replace(/ /g, '_'));
@@ -153,11 +152,8 @@ const dispatcher = async (message) => {
             category += 's';
             xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomInCategory/${category}`, false);
             xhr.send();
-        } else {
-            //const result = location.replace(/^\//, '');
-            //message.channel.send(await embedPage(result));
-            message.channel.send(location || 'Random page not available. Try again later.');
-        }
+        } else 
+            message.channel.send(location ? await embedPage(location, is_test) : 'Random page not available. Try again later.');
     };
     const quiz = async () => {
         if (await cooldown()) return;
@@ -190,6 +186,8 @@ const dispatcher = async (message) => {
         case "+random":
         case "!random":
             return await random();
+	case "+testrandom":
+            return await random(true);
         case "+quiz":
         case "!quiz":
             return await quiz();
@@ -219,3 +217,4 @@ client.on('message', async message => {
     });
 });
 client.login(base_config.token);
+
