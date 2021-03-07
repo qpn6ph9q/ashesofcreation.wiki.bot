@@ -31,7 +31,7 @@ const DESCRIPTION_SIZE = 349;
 const embedPage = async (title, is_test = false, is_redirect = false) => {
     let matches;
     if(matches = title.match(/\/([^\/]+)$/))
-        title = matches[1];
+        title = decodeURI(matches[1]);
     if(!is_test)
 	return `https://ashesofcreation.wiki/${uriWikiEncode(title)}`;
     //console.log({title:title});
