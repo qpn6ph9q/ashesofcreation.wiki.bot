@@ -26,7 +26,7 @@ const uriWikiEncode = (uri) => {
 const uriWikiDecode = (uri) => {
     return uriWikiEncode(decodeURI(uri));
 };
-const THUMBNAIL_SIZE = 600;
+const THUMBNAIL_SIZE = 800;
 const DESCRIPTION_SIZE = 349;
 const embedPage = async (title, is_redirect = false) => {
     let matches;
