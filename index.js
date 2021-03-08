@@ -65,7 +65,7 @@ const dispatcher = async (message) => {
     if (message.author.bot) return;
     if (!message.content.match(/^[!+]/)) return;
     const config = message.member.guild.id in base_config ? base_config[message.member.guild.id] : base_config;
-    if (config.bans && config.bans.includes(message.author.id)) return;
+    if (config.bans && config.bans.includes(message.member.id)) return console.log('%s is banned', message.member.id);
     const args = message.content.split(/ +/g);
     const command = args.shift().toLowerCase();
     const cooldown = async () => {
