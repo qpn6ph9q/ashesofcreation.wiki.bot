@@ -28,13 +28,10 @@ const uriWikiDecode = (uri) => {
 };
 const THUMBNAIL_SIZE = 400;
 const DESCRIPTION_SIZE = 349;
-const embedPage = async (title, is_test = false, is_redirect = false) => {
+const embedPage = async (title, is_redirect = false) => {
     let matches;
     if(matches = title.match(/\/([^\/]+)$/))
         title = decodeURI(matches[1]);
-    if(!is_test)
-	return `https://ashesofcreation.wiki/${uriWikiEncode(title)}`;
-    //console.log({title:title});
     const uri = `https://ashesofcreation.wiki/api.php?action=query&format=json&prop=pageimages%7Cextracts%7Cpageprops&list=&titles=${uriWikiEncode(title)}&redirects=1&pithumbsize=${THUMBNAIL_SIZE}&formatversion=2&exintro=1`;
     const xhr = new XMLHttpRequest();
     await xhr.open('GET', uri, false);
@@ -42,14 +39,12 @@ const embedPage = async (title, is_test = false, is_redirect = false) => {
     if (xhr.readyState != 4 || xhr.status != 200)
         return 'Page not found. Please try again later.';
     const response = xhr.responseText;
-    //console.log(response);
     const json = JSON.parse(response);
     if (!json || !json.query || !json.query.pages || !json.query.pages.length)
         return 'Missing response. Try again later.';
     if(!is_redirect && json.query.redirects && json.query.redirects.length && json.query.redirects[0].to)
-	return await embedPage(uriWikiEncode(json.query.redirects[0].to), is_test, true);
+	return await embedPage(uriWikiEncode(json.query.redirects[0].to), true);
     const page = json.query.pages[0];
-    //console.log(page);
     const embed = new MessageEmbed()
         .setAuthor('Ashes of Creation Wiki')
         .setTitle(page.title)
@@ -86,7 +81,7 @@ const dispatcher = async (message) => {
         const m = await message.channel.send('test');
         m.edit(`Ping latency: ${m.createdTimestamp - message.createdTimestamp}ms. API Latency: ${Math.round(client.ws.ping)}ms`);
     };
-    const wiki = async (is_test = true) => {
+    const wiki = async () => {
         if (await cooldown()) return;
         const search = args.join(' ').replace(/_/g, ' ');
         if (search == '') {
@@ -102,12 +97,12 @@ const dispatcher = async (message) => {
             return message.channel.send('Page not found. Please try again later.');
         const response = xhr.responseText;
         if (!response)
-            return message.channel.send(await embedPage(search, is_test)).catch(err => {
+            return message.channel.send(await embedPage(search)).catch(err => {
                 console.error(err);
             });
         const location = xhr.getResponseHeader('location');
         if (location) 
-	    return message.channel.send(await embedPage(location, is_test));
+	    return message.channel.send(await embedPage(location));
         const json = JSON.parse(response);
         if (!json || !json.__main__ || !json.__main__.result)
             return message.channel.send('Missing response. Try again later.');
@@ -119,7 +114,7 @@ const dispatcher = async (message) => {
         if (!result.hits.total)
             return message.channel.send(`${args.join(' ')} not found. Try something else.`);
         if (result.hits.total == 1)
-            return message.channel.send(await embedPage(result.hits.hits[0]._source.title, is_test)).catch(err => {
+            return message.channel.send(await embedPage(result.hits.hits[0]._source.title)).catch(err => {
                 console.error(err);
             });
         result.hits.hits.length = 3;
@@ -138,7 +133,7 @@ const dispatcher = async (message) => {
             console.error(err);
         });
     };
-    const random = async (is_test = true) => {
+    const random = async () => {
         if (await cooldown()) return;
         const xhr = new XMLHttpRequest();
         const category = ucFirst(args.join('_').replace(/ /g, '_'));
@@ -154,7 +149,7 @@ const dispatcher = async (message) => {
             await xhr.send(null);
             location = xhr.getResponseHeader('location');
         }  
-        message.channel.send(location ? await embedPage(location, is_test) : 'Random page not available. Try again later.');
+        message.channel.send(location ? await embedPage(location) : 'Random page not available. Try again later.');
     };
     const quiz = async () => {
         if (await cooldown()) return;
@@ -183,13 +178,9 @@ const dispatcher = async (message) => {
         case "+wiki":
         case "!wiki":
             return await wiki();
-        case "+test":
-            return await wiki(true);
         case "+random":
         case "!random":
             return await random();
-	case "+testrandom":
-            return await random(true);
         case "+quiz":
         case "!quiz":
             return await quiz();
