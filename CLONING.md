@@ -20,11 +20,13 @@ git clone https://github.com/qpn6ph9q/ashesofcreation.wiki.bot.git
   "prefix" : "+"
 }
 ```
-- [Install node.js and discord.js](https://discordjs.guide/#/preparations/) on your server. Example:
+- Install [node.js and discord.js](https://discordjs.guide/#/preparations/) and other dependencies on your server. Example:
 ```
 npm init -y
 npm install discord.js
 npm install xmlhttprequest
+npm install string-strip-html
+
 ```
 
 # Starting the ashesofcreation.wiki bot on your server
