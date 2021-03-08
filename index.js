@@ -49,7 +49,7 @@ const embedPage = async (title, is_redirect = false) => {
         .setAuthor('Ashes of Creation Wiki')
         .setTitle(page.title)
         .setColor('#e69710')
-        .setURL(`https://ashesofcreation.wiki/${uriWikiEncode(title)}`);
+        .setURL(`https://ashesofcreation.wiki/${uriWikiEncode(page.title)}`);
     let description = page.extract;
     if(!description && page.pageprops && page.pageprops.description) description = page.pageprops.description;
     if(description) {
