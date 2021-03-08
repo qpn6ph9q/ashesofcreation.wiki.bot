@@ -35,7 +35,7 @@ const embedPage = async (title, is_test = false, is_redirect = false) => {
     if(!is_test)
 	return `https://ashesofcreation.wiki/${uriWikiEncode(title)}`;
     //console.log({title:title});
-    const uri = `https://ashesofcreation.wiki/api.php?action=query&format=json&prop=pageimages%7Cextracts%7Cpageprops&list=&titles=${uriWikiEncode(title)}&redirects=1&pithumbsize=${THUMBNAIL_SIZE}&formatversion=2`;
+    const uri = `https://ashesofcreation.wiki/api.php?action=query&format=json&prop=pageimages%7Cextracts%7Cpageprops&list=&titles=${uriWikiEncode(title)}&redirects=1&pithumbsize=${THUMBNAIL_SIZE}&formatversion=2&exintro=1`;
     const xhr = new XMLHttpRequest();
     await xhr.open('GET', uri, false);
     await xhr.send(null);
