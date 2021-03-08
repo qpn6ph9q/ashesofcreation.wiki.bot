@@ -32,7 +32,7 @@ const embedPage = async (title, is_redirect = false) => {
     let matches;
     if(matches = title.match(/\/([^\/]+)$/))
         title = decodeURI(matches[1]);
-    const uri = `https://ashesofcreation.wiki/api.php?action=query&format=json&prop=pageimages%7Cextracts%7Cpageprops&list=&titles=${uriWikiEncode(title)}&redirects=1&pithumbsize=${THUMBNAIL_SIZE}&formatversion=2&exintro=1`;
+    const uri = `https://ashesofcreation.wiki/api.php?action=query&format=json&prop=pageimages%7Cextracts%7Cpageprops&list=&titles=${uriWikiEncode(title)}&redirects=1&pithumbsize=${THUMBNAIL_SIZE}&formatversion=2&exintro=1&redirects=1&converttitles=1`;
     const xhr = new XMLHttpRequest();
     await xhr.open('GET', uri, false);
     await xhr.send(null);
