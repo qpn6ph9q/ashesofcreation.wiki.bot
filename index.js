@@ -118,7 +118,7 @@ const dispatcher = async (message) => {
                 console.error(err);
             });
         result.hits.hits.length = 3;
-        const embed = new MessageEmbed().setTitle(`${command} results`).setColor('#e69710');
+        const embed = new MessageEmbed().setTitle(`Ashes of Creation Wiki search results`).setColor('#e69710');
         let count = 1;
         for (const hit of result.hits.hits) {
             if (!hit || !hit._source || !hit._source.title || !hit.highlight || !hit.highlight.text) continue;
