@@ -21,10 +21,10 @@ const setActivity = () => {
 const uriWikiEncode = (uri) => {
     uri = ucFirst(uri);
     uri = uri.replace(/ /g, '_');
-    return encodeURI(uri);
+    return encodeURIComponent(uri);
 };
 const uriWikiDecode = (uri) => {
-    return uriWikiEncode(decodeURI(uri));
+    return uriWikiEncode(decodeURIComponent(uri));
 };
 const THUMBNAIL_SIZE = 800;
 const DESCRIPTION_SIZE = 349;
@@ -32,7 +32,7 @@ const embedPage = async (title, is_redirect = false) => {
     let matches;
     if(matches = title.match(/\/([^\/]+)$/))
         title = matches[1];
-    title = uriWikiDecode(title);
+    title = decodeURIComponent(decodeURIComponent(title));
     const uri = `https://ashesofcreation.wiki/api.php?action=query&format=json&prop=pageimages%7Cextracts%7Cpageprops&list=&titles=${uriWikiEncode(title)}&redirects=1&pithumbsize=${THUMBNAIL_SIZE}&formatversion=2&exintro=1&redirects=1&converttitles=1`;
     const xhr = new XMLHttpRequest();
     await xhr.open('GET', uri, false);
