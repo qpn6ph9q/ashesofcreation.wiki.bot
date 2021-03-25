@@ -82,6 +82,7 @@ const dispatcher = async (message) => {
     const args = message.content.split(/ +/g);
     const command = args.shift().toLowerCase();
     const cooldown = async () => {
+	if (config.immune && config.immune.includes(message.member.id)) return false;
 	const cd = Math.floor((config.command_cooldown - (message.createdTimestamp - global.timestamp[message.channel.id]))/1000);
         if (config.command_cooldown && cd > 0) {
             const m = await message.channel.send(`Command cooldown is in effect. ${cd} seconds remaining`)
