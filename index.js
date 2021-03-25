@@ -70,7 +70,6 @@ const embedPage = async (title, is_redirect = false) => {
         embed.setDescription(description);
     }
     if (page.thumbnail && page.thumbnail.source) embed.setImage(page.thumbnail.source);
-console.log({page,page_url});
     return embed;
 };
 global.timestamp = {};
