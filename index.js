@@ -45,11 +45,23 @@ const embedPage = async (title, is_redirect = false) => {
     if(!is_redirect && json.query.redirects && json.query.redirects.length && json.query.redirects[0].to)
 	return await embedPage(uriWikiEncode(json.query.redirects[0].to), true);
     const page = json.query.pages[0];
+    let page_url = `https://ashesofcreation.wiki/${uriWikiEncode(page.title)}`;
+    if(page.missing && !is_redirect && page.title) {
+        const xhr = new XMLHttpRequest();
+        await xhr.open('GET', page_url, false);
+        xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
+        await xhr.send(null);
+        if (xhr.readyState == 4 && xhr.responseText) {
+            const location = xhr.getResponseHeader('location');
+            if (location)
+	        return await embedPage(uriWikiEncode(location), true);
+	}
+    }
     const embed = new MessageEmbed()
         .setAuthor('Ashes of Creation Wiki')
         .setTitle(page.title)
         .setColor('#e69710')
-        .setURL(`https://ashesofcreation.wiki/${uriWikiEncode(page.title)}`);
+        .setURL(page_url);
     let description = page.extract;
     if(!description && page.pageprops && page.pageprops.description) description = page.pageprops.description;
     if(description) {
@@ -58,6 +70,7 @@ const embedPage = async (title, is_redirect = false) => {
         embed.setDescription(description);
     }
     if (page.thumbnail && page.thumbnail.source) embed.setImage(page.thumbnail.source);
+console.log({page,page_url});
     return embed;
 };
 global.timestamp = {};
