@@ -44,7 +44,7 @@ const embedPage = async (title, is_redirect = false) => {
     if (!json || !json.query || !json.query.pages || !json.query.pages.length)
         return 'Missing response. Try again later.';
     if(!is_redirect && json.query.redirects && json.query.redirects.length && json.query.redirects[0].to)
-	return await embedPage(uriWikiEncode(json.query.redirects[0].to), true);
+	return await embedPage(json.query.redirects[0].to, true);
     const page = json.query.pages[0];
     let page_url = `https://ashesofcreation.wiki/${uriWikiEncode(page.title)}`;
     if(page.missing && !is_redirect && page.title) {
@@ -55,7 +55,7 @@ const embedPage = async (title, is_redirect = false) => {
         if (xhr.readyState == 4 && xhr.responseText) {
             const location = xhr.getResponseHeader('location');
             if (location)
-	        return await embedPage(uriWikiEncode(location), true);
+	        return await embedPage(location, true);
 	}
     }
     const embed = new MessageEmbed()
