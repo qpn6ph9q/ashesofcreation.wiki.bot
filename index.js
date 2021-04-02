@@ -1,8 +1,6 @@
 const {
     Client,
-    MessageEmbed,
-    Emoji,
-    MessageReaction
+    MessageEmbed
 } = require('discord.js');
 const client = new Client();
 const base_config = require('./config.json');
@@ -23,9 +21,6 @@ const uriWikiEncode = (uri) => {
     uri = uri.replace(/ /g, '_');
     return encodeURIComponent(uri);
 };
-const uriWikiDecode = (uri) => {
-    return uriWikiEncode(decodeURIComponent(uri));
-};
 const THUMBNAIL_SIZE = 800;
 const DESCRIPTION_SIZE = 349;
 const embedPage = async (title, fragment, is_redirect = false) => {
@@ -34,12 +29,12 @@ const embedPage = async (title, fragment, is_redirect = false) => {
         fragment = matches[2];
         title = matches[1];
     }
-    else if(matches = title.match(/\/([^\/]+)$/))
+    else if (matches = title.match(/\/([^\/]+)$/))
         title = matches[1];
     title = decodeURIComponent(decodeURIComponent(title));
-    if(fragment) {
+    if (fragment) {
         fragment = decodeURIComponent(decodeURIComponent(fragment));
-	title = `${title}#${fragment}`;
+        title = `${title}#${fragment}`;
     }
     const fragmentparams = fragment ? 'exsectionformat=wiki' : 'exintro=1';
     const uri = `https://ashesofcreation.wiki/api.php?action=query&format=json&prop=pageimages%7Cextracts%7Cpageprops&list=&titles=${uriWikiEncode(title)}&redirects=1&pithumbsize=${THUMBNAIL_SIZE}&formatversion=2&${fragmentparams}&redirects=1&converttitles=1`;
@@ -52,13 +47,13 @@ const embedPage = async (title, fragment, is_redirect = false) => {
     const json = JSON.parse(response);
     if (!json || !json.query || !json.query.pages || !json.query.pages.length)
         return 'Missing response. Try again later.';
-    if(!is_redirect && json.query.redirects && json.query.redirects.length && json.query.redirects[0].to)
+    if (!is_redirect && json.query.redirects && json.query.redirects.length && json.query.redirects[0].to)
         return await embedPage(json.query.redirects[0].to, json.query.redirects[0].tofragment, true);
     const page = json.query.pages[0];
     let page_url = `https://ashesofcreation.wiki/${uriWikiEncode(page.title)}`;
     if (fragment)
         page_url += `#${uriWikiEncode(fragment)}`;
-    if(page.missing && !is_redirect && page.title) {
+    if (page.missing && !is_redirect && page.title) {
         const xhr = new XMLHttpRequest();
         await xhr.open('GET', page_url, false);
         xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
@@ -66,8 +61,8 @@ const embedPage = async (title, fragment, is_redirect = false) => {
         if (xhr.readyState == 4 && xhr.responseText) {
             const location = xhr.getResponseHeader('location');
             if (location)
-	        return await embedPage(location, null, true);
-    	}
+                return await embedPage(location, null, true);
+        }
     }
     let description = page.extract;
     let page_title = page.title;
@@ -78,15 +73,15 @@ const embedPage = async (title, fragment, is_redirect = false) => {
             description = matches[1];
         }
     }
-    if(!description && page.pageprops && page.pageprops.description) description = page.pageprops.description;
+    if (!description && page.pageprops && page.pageprops.description) description = page.pageprops.description;
     const embed = new MessageEmbed()
         .setAuthor('Ashes of Creation Wiki')
         .setTitle(page_title)
         .setColor('#e69710')
         .setURL(page_url)
-	.addField(`Learn more here`, `${page_url}`);
+        .addField(`Learn more here`, `${page_url}`);
     if (description) {
-    	description = stripHtml(description).result;
+        description = stripHtml(description).result;
         if (description.length > DESCRIPTION_SIZE) description = description.substring(0, DESCRIPTION_SIZE).trim() + '...';
         embed.setDescription(description);
     }
@@ -102,8 +97,8 @@ const dispatcher = async (message) => {
     const args = message.content.split(/ +/g);
     const command = args.shift().toLowerCase();
     const cooldown = async () => {
-	if (config.immune && config.immune.includes(message.member.id)) return false;
-	const cd = Math.floor((config.command_cooldown - (message.createdTimestamp - global.timestamp[message.channel.id]))/1000);
+        if (config.immune && config.immune.includes(message.member.id)) return false;
+        const cd = Math.floor((config.command_cooldown - (message.createdTimestamp - global.timestamp[message.channel.id])) / 1000);
         if (config.command_cooldown && cd > 0) {
             const m = await message.channel.send(`Command cooldown is in effect. ${cd} seconds remaining`)
             return true;
@@ -136,8 +131,8 @@ const dispatcher = async (message) => {
                 console.error(err);
             });
         const location = xhr.getResponseHeader('location');
-        if (location) 
-	    return message.channel.send(await embedPage(location));
+        if (location)
+            return message.channel.send(await embedPage(location));
         const json = JSON.parse(response);
         if (!json || !json.__main__ || !json.__main__.result)
             return message.channel.send('Missing response. Try again later.');
@@ -183,7 +178,7 @@ const dispatcher = async (message) => {
             await xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomArticleInCategory/${category}s`, false);
             await xhr.send(null);
             location = xhr.getResponseHeader('location');
-        }  
+        }
         message.channel.send(location ? await embedPage(location) : 'Random page not available. Try again later.');
     };
     const quiz = async () => {
@@ -198,11 +193,11 @@ const dispatcher = async (message) => {
             .setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
             .addField(`\`\`+wiki TEXT\`\``, `Search ashesofcreation.wiki for TEXT (top 3 results)`)
             .addField(`\`\`+random\`\``, `Random article from ashesofcreation.wiki`)
-	    .addField(`\`\`+random CATEGORY\`\``, `Random article in CATEGORY`)
+            .addField(`\`\`+random CATEGORY\`\``, `Random article in CATEGORY`)
             .addField(`\`\`+quiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
             .addField('Join our discord!', 'https://discord.gg/HEKx527')
             .addField('Invite me to your discord!', 'https://goo.gl/DMB3Sr');
-        if (config.command_cooldown) embed.setFooter(`Command cooldown is set to ${config.command_cooldown/1000} seconds`);
+        if (config.command_cooldown) embed.setFooter(`Command cooldown is set to ${config.command_cooldown / 1000} seconds`);
         message.channel.send(embed).catch(err => {
             console.error(err);
         });
