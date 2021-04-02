@@ -28,12 +28,21 @@ const uriWikiDecode = (uri) => {
 };
 const THUMBNAIL_SIZE = 800;
 const DESCRIPTION_SIZE = 349;
-const embedPage = async (title, is_redirect = false) => {
+const embedPage = async (title, fragment, is_redirect = false) => {
     let matches;
-    if(matches = title.match(/\/([^\/]+)$/))
+    if (matches = title.match(/\/?([^#]+)#(.+)$/)) {
+        fragment = matches[2];
+        title = matches[1];
+    }
+    else if(matches = title.match(/\/([^\/]+)$/))
         title = matches[1];
     title = decodeURIComponent(decodeURIComponent(title));
-    const uri = `https://ashesofcreation.wiki/api.php?action=query&format=json&prop=pageimages%7Cextracts%7Cpageprops&list=&titles=${uriWikiEncode(title)}&redirects=1&pithumbsize=${THUMBNAIL_SIZE}&formatversion=2&exintro=1&redirects=1&converttitles=1`;
+    if(fragment) {
+        fragment = decodeURIComponent(decodeURIComponent(fragment));
+	title = `${title}#${fragment}`;
+    }
+    const fragmentparams = fragment ? 'exsectionformat=wiki' : 'exintro=1';
+    const uri = `https://ashesofcreation.wiki/api.php?action=query&format=json&prop=pageimages%7Cextracts%7Cpageprops&list=&titles=${uriWikiEncode(title)}&redirects=1&pithumbsize=${THUMBNAIL_SIZE}&formatversion=2&${fragmentparams}&redirects=1&converttitles=1`;
     const xhr = new XMLHttpRequest();
     await xhr.open('GET', uri, false);
     await xhr.send(null);
@@ -44,9 +53,11 @@ const embedPage = async (title, is_redirect = false) => {
     if (!json || !json.query || !json.query.pages || !json.query.pages.length)
         return 'Missing response. Try again later.';
     if(!is_redirect && json.query.redirects && json.query.redirects.length && json.query.redirects[0].to)
-	return await embedPage(json.query.redirects[0].to, true);
+        return await embedPage(json.query.redirects[0].to, json.query.redirects[0].tofragment, true);
     const page = json.query.pages[0];
     let page_url = `https://ashesofcreation.wiki/${uriWikiEncode(page.title)}`;
+    if (fragment)
+        page_url += `#${uriWikiEncode(fragment)}`;
     if(page.missing && !is_redirect && page.title) {
         const xhr = new XMLHttpRequest();
         await xhr.open('GET', page_url, false);
@@ -55,18 +66,27 @@ const embedPage = async (title, is_redirect = false) => {
         if (xhr.readyState == 4 && xhr.responseText) {
             const location = xhr.getResponseHeader('location');
             if (location)
-	        return await embedPage(location, true);
-	}
+	        return await embedPage(location, null, true);
+    	}
     }
+    let description = page.extract;
+    let page_title = page.title;
+    if (fragment) {
+        const regex = new RegExp(`<span id="${fragment}">${fragment}</span>(.+?)<span id=`, 's');
+        if (matches = `${description}<span id="">`.match(regex)) {
+            page_title = fragment;
+            description = matches[1];
+        }
+    }
+    if(!description && page.pageprops && page.pageprops.description) description = page.pageprops.description;
     const embed = new MessageEmbed()
         .setAuthor('Ashes of Creation Wiki')
-        .setTitle(page.title)
+        .setTitle(page_title)
         .setColor('#e69710')
-        .setURL(page_url);
-    let description = page.extract;
-    if(!description && page.pageprops && page.pageprops.description) description = page.pageprops.description;
-    if(description) {
-	description = stripHtml(description).result;
+        .setURL(page_url)
+	.addField(`Learn more here`, `${page_url}`);
+    if (description) {
+    	description = stripHtml(description).result;
         if (description.length > DESCRIPTION_SIZE) description = description.substring(0, DESCRIPTION_SIZE).trim() + '...';
         embed.setDescription(description);
     }
