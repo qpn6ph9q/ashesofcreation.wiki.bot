@@ -96,8 +96,12 @@ const embedPage = async (title, fragment, is_redirect = false) => {
 global.timestamp = {};
 const dispatcher = async (message) => {
     if (message.author.bot) return;
-    if (!message.content.match(/^[!+]/)) return;
     const config = message.member.guild.id in base_config ? base_config[message.member.guild.id] : base_config;
+    if(config.prefix) {
+        const regex = new RegExp(`^[${config.prefix}]`, 's');
+        message.content = message.content.replace(regex, '+');
+    }
+    if (!message.content.match(/^[+]/)) return;
     if (config.bans && config.bans.includes(message.member.id)) return console.log('%s is banned', message.member.id);
     const args = message.content.split(/ +/g);
     const command = args.shift().toLowerCase();
@@ -192,14 +196,15 @@ const dispatcher = async (message) => {
     };
     const help = async () => {
         if (await cooldown()) return;
+	const prefix = config.prefix ? config.prefix : '+';
         const embed = new MessageEmbed()
             .setTitle(`** ashesofcreation.wiki Discord bot **`)
             .setColor('#e69710')
             .setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
-            .addField(`\`\`+wiki TEXT\`\``, `Search ashesofcreation.wiki for TEXT (top 3 results)`)
-            .addField(`\`\`+random\`\``, `Random article from ashesofcreation.wiki`)
-	    .addField(`\`\`+random CATEGORY\`\``, `Random article in CATEGORY`)
-            .addField(`\`\`+quiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
+            .addField(`\`\`${prefix}wiki TEXT\`\``, `Search ashesofcreation.wiki for TEXT (top 3 results)`)
+            .addField(`\`\`${prefix}random\`\``, `Random article from ashesofcreation.wiki`)
+	    .addField(`\`\`${prefix}random CATEGORY\`\``, `Random article in CATEGORY`)
+            .addField(`\`\`${prefix}quiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
             .addField('Join our discord!', 'https://discord.gg/HEKx527')
             .addField('Invite me to your discord!', 'https://goo.gl/DMB3Sr');
         if (config.command_cooldown) embed.setFooter(`Command cooldown is set to ${config.command_cooldown/1000} seconds`);
@@ -211,13 +216,10 @@ const dispatcher = async (message) => {
         case "+ping":
             return await ping();
         case "+wiki":
-        case "!wiki":
             return await wiki();
         case "+random":
-        case "!random":
             return await random();
         case "+quiz":
-        case "!quiz":
             return await quiz();
         case "+help":
             return await help();
