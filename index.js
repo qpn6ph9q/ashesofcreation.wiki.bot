@@ -8,6 +8,14 @@ const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 const {
     stripHtml
 } = require('string-strip-html');
+try {
+    const topgg = require('topgg-autoposter')
+    const ap = topgg(base_config.topggtoken, client);
+    ap.on('posted', () => { console.log('Posted stats to top.gg'); });
+}
+catch(e) {
+    console.error({topgg_exception: e});
+}
 const ucFirst = (str) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
@@ -177,6 +185,8 @@ const dispatcher = async (message) => {
             m = m.replace(/<span[^>]+>([^<]+)<\/span>/g, '***$1***');
             m = m.replace(/\uE000([^\uE001]+)\uE001/g, '***$1***');
             m = m.replace(/<[^>]+>/g, '');
+	    m = m.replace(/&quot;/g, '"');
+            m = m.replace(/&amp;/g, '&');
             embed.addField(`${count}: <https://ashesofcreation.wiki/${uriWikiEncode(hit.title, hit.sectiontitle)}>`, `...${m}...`);
             count++;
         };
@@ -218,7 +228,8 @@ const dispatcher = async (message) => {
             .addField(`\`\`${prefix}random CATEGORY\`\``, `Random article in CATEGORY`)
             .addField(`\`\`${prefix}quiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
             .addField('Join our discord!', 'https://discord.gg/HEKx527')
-            .addField('Invite me to your discord!', 'https://goo.gl/DMB3Sr');
+            .addField('Invite me to your discord!', 'https://goo.gl/DMB3Sr')
+	    .addField('Vote for me at top.gg!', 'https://top.gg/bot/506608731463876628');
         if (config.command_cooldown) embed.setFooter(`Command cooldown is set to ${config.command_cooldown / 1000} seconds`);
         message.channel.send(embed).catch(err => {
             console.error(err);
