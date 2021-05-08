@@ -228,8 +228,7 @@ const dispatcher = async (message) => {
             .addField(`\`\`${prefix}random CATEGORY\`\``, `Random article in CATEGORY`)
             .addField(`\`\`${prefix}quiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
             .addField('Join our discord!', 'https://discord.gg/HEKx527')
-            .addField('Invite me to your discord!', 'https://goo.gl/DMB3Sr')
-	    .addField('Vote for me at top.gg!', 'https://top.gg/bot/506608731463876628');
+            .addField('Invite me to your discord!', 'https://top.gg/bot/506608731463876628');
         if (config.command_cooldown) embed.setFooter(`Command cooldown is set to ${config.command_cooldown / 1000} seconds`);
         message.channel.send(embed).catch(err => {
             console.error(err);
