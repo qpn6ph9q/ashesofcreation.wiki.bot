@@ -235,8 +235,8 @@ const dispatcher = async (message) => {
         });
     };
     switch (command) {
-        case "+ping":
-            return await ping();
+        //case "+ping":
+        //    return await ping();
         case "+wiki":
             return await wiki();
         case "+random":
