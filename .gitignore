@@ -3,3 +3,10 @@
 ################################################################################
 
 /node_modules
+/package-lock.json
+/test.js
+/.vs/ashesofcreation.wiki.bot/v16
+/.vs/ProjectSettings.json
+/.vs/slnx.sqlite
+/.vs/VSWorkspaceState.json
+/.node-xmlhttprequest-sync-96
