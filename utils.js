@@ -1,10 +1,9 @@
-import {
-    MessageEmbed
-} from 'discord.js';
-import { stripHtml } from 'string-strip-html';
-
 const THUMBNAIL_SIZE = 800;
 const DESCRIPTION_SIZE = 349;
+
+import { MessageEmbed } from 'discord.js';
+import { stripHtml } from 'string-strip-html';
+import { XMLHttpRequest } from 'xmlhttprequest';
 
 export function setActivity() {
     global.client.user.setActivity(` on ${global.client.guilds.cache.size} discords | +help`, {
@@ -69,7 +68,12 @@ export async function getPageEmbed (title, fragment, is_redirect = false) {
         }
     }
     if (!description && page.pageprops && page.pageprops.description) description = page.pageprops.description;
-    const embed = new MessageEmbed().setAuthor('Ashes of Creation Wiki').setTitle(page_title).setColor('#e69710').setURL(page_url).addField(`Learn more here`, `${page_url}`);
+    const embed = new MessageEmbed()
+        .setAuthor({ name: 'Ashes of Creation Wiki' })
+        .setTitle(page_title)
+        .setColor('#e69710')
+        .setURL(page_url)
+        .addField(`Learn more here`, `${page_url}`);
     if (description) {
         description = stripHtml(description).result;
         if (description.length > DESCRIPTION_SIZE) description = description.substring(0, DESCRIPTION_SIZE).trim() + '...';
@@ -87,7 +91,8 @@ export async function embedPage (title, fragment, is_redirect = false) {
     }
 }
 
-export function prepareMessageContent (content, text) {
+export async function prepareMessageContent(content, text) {
+    //console.log({ content, text });
     if (content && typeof content === 'object') {
         switch (content?.constructor?.name) {
             case 'MessageEmbed':
@@ -101,15 +106,8 @@ export function prepareMessageContent (content, text) {
         }
     }
     if (!content)
-        return text ? { content: text } : '';
-    return text ? { content: [content, text] } : { content: content };
+        return text ? { content: text } : '??';
+    return text ? { content: [content, text] } : content;
 };
-
-export function prepareLegacyMessageContent(content) {
-    content = prepareMessageContent(content);
-    if (content?.constructor?.name != 'MessageEmbed')
-        return content;
-    content.setFooter('Wiki commands starting with + or ! will no longer work from April 2022 due to new Discord rules. Please use / commands instead.');
-}
 
 export default () => { };

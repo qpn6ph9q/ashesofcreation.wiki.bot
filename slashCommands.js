@@ -20,7 +20,7 @@ const cooldown = async (interaction) => {
     if (config.immune && config.immune.includes(interaction.member.id)) return false;
     const cd = Math.floor((config.command_cooldown - (interaction.createdTimestamp - global.timestamp[interaction.channelId])) / 1000);
     if (config.command_cooldown && cd > 0) {
-        const m = await interaction.reply(`Command cooldown is in effect. ${cd} seconds remaining`)
+        const m = await interaction.editReply(await prepareMessageContent(`Command cooldown is in effect. ${cd} seconds remaining`))
         return true;
     }
     global.timestamp[interaction.channelId] = interaction.createdTimestamp;
@@ -28,7 +28,6 @@ const cooldown = async (interaction) => {
 };
 
 export async function initSlashCommands() {
-    console.log(dispatcher);
     const rest = new REST({
         version: '9'
     }).setToken(config.token);
@@ -40,14 +39,18 @@ export async function initSlashCommands() {
     try {
         const globalSlashCommands = [
             {
-                data: new SlashCommandBuilder().setName('wiki').setDescription('Search ashesofcreation.wiki (top 3 results)')
-		    .addStringOption(option => option.setName('search').setDescription('Text to search for on the wiki').setRequired(false)),
+                data: new SlashCommandBuilder().setName('wiki')
+                    .setDescription('Search ashesofcreation.wiki (top 3 results)')
+                    .addStringOption(option => option.setName('search')
+                        .setDescription('Text to search for on the wiki')
+                        .setRequired(false)),
                 async execute(interaction) {
                     if (await cooldown(interaction)) return;
+                    await interaction.deferReply();
                     const search = interaction.options.getString('search');
-                    if (!search) return await interaction.reply('https://ashesofcreation.wiki');
+                    if (!search) return await interaction.editReply(await prepareMessageContent('https://ashesofcreation.wiki'));
                     try {
-                        return await interaction.reply(await prepareMessageContent(await getPageEmbed(search)));
+                        return await interaction.editReply(await prepareMessageContent(await getPageEmbed(search)));
                     } catch (e) {
                         console.log('no exact match found for %s: %s', search, e);
                     }
@@ -56,20 +59,20 @@ export async function initSlashCommands() {
                     await xhr.open('GET', query, false);
                     xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
                     await xhr.send(null);
-                    if (xhr.readyState != 4) return await interaction.reply('Page not found. Please try again later.');
+                    if (xhr.readyState != 4) return await interaction.editReply(await prepareMessageContent('Page not found. Please try again later.'));
                     const response = xhr.responseText;
-                    if (!response) return await interaction.reply(await prepareMessageContent(await embedPage(search))).catch(err => {
+                    if (!response) return await interaction.editReply(await prepareMessageContent(await embedPage(search))).catch(err => {
                         console.error(err);
                     });
                     let location = xhr.getResponseHeader('location');
-                    if (location) return await interaction.reply(await prepareMessageContent(await embedPage(location)));
+                    if (location) return await interaction.editReply(await prepareMessageContent(await embedPage(location)));
                     const json = JSON.parse(response);
-                    if (!json || !json.query || !json.query.search) return await interaction.reply('Missing response. Try again later.');
+                    if (!json || !json.query || !json.query.search) return await interaction.editReply(await prepareMessageContent('Missing response. Try again later.'));
                     const result = json.query.search;
-                    if (!result) return await interaction.reply('Invalid response format. Try again later.');
-                    if (!result.length) return await interaction.reply('No matching results. Try something else.');
+                    if (!result) return await interaction.editReply(await prepareMessageContent('Invalid response format. Try again later.'));
+                    if (!result.length) return await interaction.editReply(await prepareMessageContent('No matching results. Try something else.'));
                     if (result.length == 1) {
-                        return await interaction.reply(await prepareMessageContent(await embedPage(result[0].title, result[0].sectiontitle))).catch(err => {
+                        return await interaction.editReply(await prepareMessageContent(await embedPage(result[0].title, result[0].sectiontitle))).catch(err => {
                             console.error(err);
                         });
                     }
@@ -87,7 +90,7 @@ export async function initSlashCommands() {
                         embed.addField(`${count}: <https://ashesofcreation.wiki/${uriWikiEncode(hit.title, hit.sectiontitle)}>`, `...${m}...`);
                         count++;
                     };
-                    await interaction.reply(await prepareMessageContent(count == 1 ? 'Something went wrong. Try again later.' : embed)).catch(err => {
+                    await interaction.editReply(await prepareMessageContent(count == 1 ? 'Something went wrong. Try again later.' : embed)).catch(err => {
                         console.error(err);
                     });
                 }
@@ -103,17 +106,18 @@ export async function initSlashCommands() {
 				.addField(`\`\`/wikiquiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
 				.addField('Join our discord!', 'https://discord.gg/HEKx527')
 				.addField('Invite me to your discord!', 'https://top.gg/bot/506608731463876628');
-                    if (config.command_cooldown) embed.setFooter(`Command cooldown is set to ${config.command_cooldown / 1000} seconds`);
+                    if (config.command_cooldown) embed.setFooter({ text: `Command cooldown is set to ${config.command_cooldown / 1000} seconds` });
                     await interaction.reply(await prepareMessageContent(embed));
                 }
             },
             {
                 data: new SlashCommandBuilder().setName('random').setDescription('Random article from ashesofcreation.wiki')
-		    .addStringOption(option => option.setName('category').setDescription('Random article in category').setRequired(false)),
+		            .addStringOption(option => option.setName('category').setDescription('Random article in category').setRequired(false)),
                 async execute(interaction) {
                     if (await cooldown(interaction)) return;
+                    await interaction.deferReply();
                     const xhr = new XMLHttpRequest();
-		    const category = ucFirst(interaction.options.getString('category')).replace(/ /g, '_');
+                    const category = ucFirst(interaction.options.getString('category')).replace(/ /g, '_');
                     if (category) await xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomArticleInCategory/${category}`, false);
                     else await xhr.open('GET', 'https://ashesofcreation.wiki/Special:Random', false);
                     await xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
@@ -124,7 +128,7 @@ export async function initSlashCommands() {
                         await xhr.send(null);
                         location = xhr.getResponseHeader('location');
                     }
-                    await interaction.reply(await prepareMessageContent(location ? await embedPage(location) : 'Random page not available. Try again later.'));
+                    await interaction.editReply(await prepareMessageContent(location ? await embedPage(location) : 'Random page not available. Try again later.'));
                 }
             },
             {
@@ -149,11 +153,11 @@ export async function initSlashCommands() {
             if (!interaction.isCommand()) return;
             const slashCommand = global.client.commands.get(interaction.commandName);
             if (!slashCommand) return;
-            await slashCommand.execute(interaction);
+            await slashCommand.execute(interaction).catch(console.error);
         });
     } catch (err) {
         console.error(err);
     }
 };
 
-export default () => { };
+export default initSlashCommands;

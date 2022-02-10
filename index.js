@@ -5,7 +5,7 @@ import config from './config.json';
 import { Client, Intents } from 'discord.js';
 
 global.client = new Client({
-    intents: [ Intents.FLAGS.GUILD_MESSAGES ]
+    intents: [ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES ]
 });
 
 import { setActivity } from './utils.js';
@@ -28,24 +28,21 @@ try {
     });
 }
 
-global.client.on('ready', () => {
+global.client.on('ready', async () => {
     console.log(`Bot starting in ${global.client.guilds.cache.size} servers with ${global.client.users.cache.size} users`);
     setActivity();
     initSlashCommands();
 });
-global.client.on('guildCreate', guild => {
+global.client.on('guildCreate', async guild => {
     console.log(`Bot joining ${guild.name} with ${guild.memberCount} members`);
     setActivity();
 });
-global.client.on('guildDelete', guild => {
+global.client.on('guildDelete', async guild => {
     console.log(`Bot leaving ${guild.name}`);
     setActivity();
 });
-client.on('message', async message => {
-    await dispatcher(message).catch((e) => {
-        console.error({
-            dispatcher: e
-        });
-    });
+global.client.on('messageCreate', async message => {
+    await dispatcher(message);
 });
+
 global.client.login(config.token);

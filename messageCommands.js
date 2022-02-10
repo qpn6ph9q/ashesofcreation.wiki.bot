@@ -2,10 +2,17 @@ import config from './config.json';
 
 import { MessageEmbed } from 'discord.js';
 
-import { ucFirst, uriWikiEncode, getPageEmbed, embedPage, prepareLegacyMessageContent } from './utils.js';
+import { XMLHttpRequest } from 'xmlhttprequest';
+
+import { ucFirst, uriWikiEncode, getPageEmbed, embedPage, prepareMessageContent } from './utils.js';
+
+async function prepareLegacyMessageContent(content) {
+    if (content?.constructor?.name == 'MessageEmbed')
+        content.setFooter({ text: 'Please use /wiki to search the wiki. The !wiki command will no longer work after April 30, 2022 due to Discord rule changes.' });
+    return await prepareMessageContent(content);
+}
 
 export async function dispatcher (message) {
-    console.log(dispatcher);
     if (message.author.bot) return;
     if (config.prefix) {
         const regex = new RegExp(`^[${config.prefix}]`, 's');
@@ -19,7 +26,7 @@ export async function dispatcher (message) {
         if (config.immune && config.immune.includes(message.member.id)) return false;
         const cd = Math.floor((config.command_cooldown - (message.createdTimestamp - global.timestamp[message.channel.id])) / 1000);
         if (config.command_cooldown && cd > 0) {
-            const m = await message.channel.send(`Command cooldown is in effect. ${cd} seconds remaining`)
+            const m = await message.channel.send(await prepareLegacyMessageContent(`Command cooldown is in effect. ${cd} seconds remaining`))
             return true;
         }
         global.timestamp[message.channel.id] = message.createdTimestamp;
@@ -29,7 +36,7 @@ export async function dispatcher (message) {
         if (await cooldown()) return;
         const search = args.join(' ').replace(/_/g, ' ');
         if (search == '') {
-            message.channel.send('https://ashesofcreation.wiki');
+            message.channel.send(await prepareLegacyMessageContent('https://ashesofcreation.wiki'));
             return;
         }
         try {
@@ -44,7 +51,7 @@ export async function dispatcher (message) {
         xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
         await xhr.send(null);
         if (xhr.readyState != 4)
-            return message.channel.send('Page not found. Please try again later.');
+            return message.channel.send(await prepareLegacyMessageContent('Page not found. Please try again later.'));
         const response = xhr.responseText;
         if (!response)
             return message.channel.send(await prepareLegacyMessageContent(await embedPage(search))).catch(err => {
@@ -55,19 +62,19 @@ export async function dispatcher (message) {
             return message.channel.send(await prepareLegacyMessageContent(await embedPage(location)));
         const json = JSON.parse(response);
         if (!json || !json.query || !json.query.search)
-            return message.channel.send('Missing response. Try again later.');
+            return message.channel.send(await prepareLegacyMessageContent('Missing response. Try again later.'));
         const result = json.query.search;
         if (!result)
-            return message.channel.send('Invalid response format. Try again later.');
+            return message.channel.send(await prepareLegacyMessageContent('Invalid response format. Try again later.'));
         if (!result.length)
-            return message.channel.send('No matching results. Try something else.');
+            return message.channel.send(await prepareLegacyMessageContent('No matching results. Try something else.'));
         if (result.length == 1) {
             return message.channel.send(await prepareLegacyMessageContent(await embedPage(result[0].title, result[0].sectiontitle))).catch(err => {
                 console.error(err);
             });
         }
         result.length = 3;
-        const embed = new MessageEmbed().setTitle(`Ashes of Creation Wiki search results`).setColor('#e69710').setFooter(SLASH_COMMANDS);
+        const embed = new MessageEmbed().setTitle(`Ashes of Creation Wiki search results`).setColor('#e69710');
         let count = 1;
         for (const hit of result) {
             if (!hit || !hit.title) continue;
@@ -123,8 +130,6 @@ export async function dispatcher (message) {
         });
     };
     switch (command) {
-        //case "+ping":
-        //    return await ping();
         case "+wiki":
             return await wiki();
         case "+random":
@@ -138,4 +143,4 @@ export async function dispatcher (message) {
     }
 }
 
-export default () => { };
+export default dispatcher;
