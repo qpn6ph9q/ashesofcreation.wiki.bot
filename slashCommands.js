@@ -20,7 +20,7 @@ const cooldown = async (interaction) => {
     if (config.immune && config.immune.includes(interaction.member.id)) return false;
     const cd = Math.floor((config.command_cooldown - (interaction.createdTimestamp - global.timestamp[interaction.channelId])) / 1000);
     if (config.command_cooldown && cd > 0) {
-        const m = await interaction.editReply(await prepareMessageContent(`Command cooldown is in effect. ${cd} seconds remaining`))
+        const m = await interaction.reply(await prepareMessageContent(`Command cooldown is in effect. ${cd} seconds remaining`))
         return true;
     }
     global.timestamp[interaction.channelId] = interaction.createdTimestamp;
@@ -77,7 +77,9 @@ export async function initSlashCommands() {
                         });
                     }
                     result.length = 3;
-                    const embed = new MessageEmbed().setTitle(`Ashes of Creation Wiki search results`).setColor('#e69710');
+                    const embed = new MessageEmbed()
+                        .setTitle(`Ashes of Creation Wiki search results`)
+                        .setColor('#e69710');
                     let count = 1;
                     for (const hit of result) {
                         if (!hit || !hit.title) continue;
@@ -96,14 +98,15 @@ export async function initSlashCommands() {
                 }
             },
             {
-                data: new SlashCommandBuilder().setName('help').setDescription('Using the ashesofcreation.wiki Discord bot'),
+                data: new SlashCommandBuilder().setName('help')
+                    .setDescription('Using the ashesofcreation.wiki Discord bot'),
                 async execute(interaction) {
                     if (await cooldown(interaction)) return;
                     const embed = new MessageEmbed().setTitle(`** ashesofcreation.wiki Discord bot **`).setColor('#e69710').setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
 				.addField(`\`\`/wiki search\`\``, `Search ashesofcreation.wiki (top 3 results)`)
 				.addField(`\`\`/random\`\``, `Random article from ashesofcreation.wiki`)
 				.addField(`\`\`/random category\`\``, `Random article in category`)
-				.addField(`\`\`/wikiquiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
+				.addField(`\`\`/quiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
 				.addField('Join our discord!', 'https://discord.gg/HEKx527')
 				.addField('Invite me to your discord!', 'https://top.gg/bot/506608731463876628');
                     if (config.command_cooldown) embed.setFooter({ text: `Command cooldown is set to ${config.command_cooldown / 1000} seconds` });
@@ -111,7 +114,8 @@ export async function initSlashCommands() {
                 }
             },
             {
-                data: new SlashCommandBuilder().setName('random').setDescription('Random article from ashesofcreation.wiki')
+                data: new SlashCommandBuilder().setName('random')
+                    .setDescription('Random article from ashesofcreation.wiki')
 		            .addStringOption(option => option.setName('category').setDescription('Random article in category').setRequired(false)),
                 async execute(interaction) {
                     if (await cooldown(interaction)) return;
@@ -132,7 +136,8 @@ export async function initSlashCommands() {
                 }
             },
             {
-                data: new SlashCommandBuilder().setName('quiz').setDescription('Take the Ashes of Creation Trivianator quiz'),
+                data: new SlashCommandBuilder().setName('quiz')
+                    .setDescription('Take the Ashes of Creation Trivianator quiz'),
                 async execute(interaction) {
                     if (await cooldown(interaction)) return;
                     return await interaction.reply('https://quiz.ashesofcreation.wiki/quiz_list_guest/');
