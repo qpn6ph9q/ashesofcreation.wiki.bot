@@ -1,28 +1,23 @@
-const {
+import {
     Client,
     MessageEmbed,
     Collection
-} = require('discord.js');
-const {
+} from 'discord.js';
+import {
     REST
-} = require('@discordjs/rest');
+} from '@discordjs/rest';
 const client = new Client({
-    intents: [ Intents.FLAGS.GUILDS ]
+    intents: [  ]
 });
-const config = require('./config.json');
-const rest = new REST({
-    version: '9'
-}).setToken(config.token);
-const {
+import config from './config.json';
+import {
     SlashCommandBuilder
-} = require('@discordjs/builders');
-const {
+} from '@discordjs/builders';
+import {
     Routes
-} = require('discord-api-types/v9');
-const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
-const {
-    stripHtml
-} = require('string-strip-html');
+} from 'discord-api-types/v9';
+import { XMLHttpRequest } from 'xmlhttprequest';
+import { stripHtml } from 'string-strip-html';
 try {
     if (config.topggtoken) {
         const topgg = require('topgg-autoposter')
@@ -129,6 +124,9 @@ const cooldown = async (interaction) => {
     return false;
 };
 const initSlashCommands = async () => {
+    const rest = new REST({
+        version: '9'
+    }).setToken(config.token);
     if (!rest) throw `Rest API is not enabled.`;
     try {
         // Register global slash commands
@@ -238,13 +236,12 @@ const initSlashCommands = async () => {
             console.log(interaction);
         });
     } catch (err) {
-        utils.error(err);
+        console.error(err);
     }
 };
 client.on('ready', () => {
     console.log(`Bot starting in ${client.guilds.cache.size} servers with ${client.users.cache.size} users`);
     setActivity();
-    initSlashCommands();
 });
 client.on('guildCreate', guild => {
     console.log(`Bot joining ${guild.name} with ${guild.memberCount} members`);
@@ -254,4 +251,5 @@ client.on('guildDelete', guild => {
     console.log(`Bot leaving ${guild.name}`);
     setActivity();
 });
+initSlashCommands();
 client.login(config.token);
