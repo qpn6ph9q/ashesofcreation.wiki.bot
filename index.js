@@ -6,7 +6,9 @@ const {
 const {
     REST
 } = require('@discordjs/rest');
-const client = new Client();
+const client = new Client({
+    intents: [ Intents.FLAGS.GUILDS ]
+});
 const config = require('./config.json');
 const rest = new REST({
     version: '9'
