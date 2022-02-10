@@ -28,6 +28,7 @@ const cooldown = async (interaction) => {
 };
 
 export async function initSlashCommands() {
+    console.log(dispatcher);
     const rest = new REST({
         version: '9'
     }).setToken(config.token);

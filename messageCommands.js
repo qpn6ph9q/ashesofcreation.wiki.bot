@@ -5,6 +5,7 @@ import { MessageEmbed } from 'discord.js';
 import { ucFirst, uriWikiEncode, getPageEmbed, embedPage, prepareLegacyMessageContent } from './utils.js';
 
 export async function dispatcher (message) {
+    console.log(dispatcher);
     if (message.author.bot) return;
     if (config.prefix) {
         const regex = new RegExp(`^[${config.prefix}]`, 's');
@@ -25,7 +26,6 @@ export async function dispatcher (message) {
         return false;
     };
     const wiki = async () => {
-        console.log(wiki);
         if (await cooldown()) return;
         const search = args.join(' ').replace(/_/g, ' ');
         if (search == '') {
