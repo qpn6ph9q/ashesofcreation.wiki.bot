@@ -32,6 +32,7 @@ try {
     });
 }
 const ucFirst = (str) => {
+    if(!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
 const setActivity = () => {
@@ -203,21 +204,27 @@ const initSlashCommands = async () => {
                 }
             },
             {
-                data: new SlashCommandBuilder().setName('wikihelp').setDescription('Using the ashesofcreation.wiki Discord bot'),
+                data: new SlashCommandBuilder().setName('help').setDescription('Using the ashesofcreation.wiki Discord bot'),
                 async execute(interaction) {
                     if (await cooldown(interaction)) return;
-                    const embed = new MessageEmbed().setTitle(`** ashesofcreation.wiki Discord bot **`).setColor('#e69710').setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!').addField(`/wiki TEXT\`\``, `Search ashesofcreation.wiki for TEXT (top 3 results)`).addField(`/wikirandom\`\``, `Random article from ashesofcreation.wiki`).addField(`/wikirandom CATEGORY\`\``, `Random article in CATEGORY`).addField(`/wikiquiz\`\``, `Take the Ashes of Creation Trivianator quiz`).addField('Join our discord!', 'https://discord.gg/HEKx527').addField('Invite me to your discord!', 'https://top.gg/bot/506608731463876628');
+                    const embed = new MessageEmbed().setTitle(`** ashesofcreation.wiki Discord bot **`).setColor('#e69710').setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
+				.addField(`\`\`/wiki search\`\``, `Search ashesofcreation.wiki (top 3 results)`)
+				.addField(`\`\`/random\`\``, `Random article from ashesofcreation.wiki`)
+				.addField(`\`\`/random category\`\``, `Random article in category`)
+				.addField(`\`\`/wikiquiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
+				.addField('Join our discord!', 'https://discord.gg/HEKx527')
+				.addField('Invite me to your discord!', 'https://top.gg/bot/506608731463876628');
                     if (config.command_cooldown) embed.setFooter(`Command cooldown is set to ${config.command_cooldown / 1000} seconds`);
                     await interaction.reply(await prepareMessageContent(embed));
                 }
             },
             {
-                data: new SlashCommandBuilder().setName('wikirandom').setDescription('Random article from ashesofcreation.wiki')
+                data: new SlashCommandBuilder().setName('random').setDescription('Random article from ashesofcreation.wiki')
 		    .addStringOption(option => option.setName('category').setDescription('Random article in category').setRequired(false)),
                 async execute(interaction) {
                     if (await cooldown(interaction)) return;
                     const xhr = new XMLHttpRequest();
-		    const category = ucFirst(interaction.options.getString('category').replace(/ /g, '_'));
+		    const category = ucFirst(interaction.options.getString('category')).replace(/ /g, '_');
                     if (category) await xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomArticleInCategory/${category}`, false);
                     else await xhr.open('GET', 'https://ashesofcreation.wiki/Special:Random', false);
                     await xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
@@ -232,7 +239,7 @@ const initSlashCommands = async () => {
                 }
             },
             {
-                data: new SlashCommandBuilder().setName('wikiquiz').setDescription('Take the Ashes of Creation Trivianator quiz'),
+                data: new SlashCommandBuilder().setName('quiz').setDescription('Take the Ashes of Creation Trivianator quiz'),
                 async execute(interaction) {
                     if (await cooldown(interaction)) return;
                     return await interaction.reply('https://quiz.ashesofcreation.wiki/quiz_list_guest/');
