@@ -1,9 +1,15 @@
 const {
     Client,
-    MessageEmbed
+    MessageEmbed,
+    Collection
 } = require('discord.js');
+const { REST } = require('@discordjs/rest');
 const client = new Client();
 const base_config = require('./config.json');
+const rest = new REST({ version: '9' }).setToken(base_config.token);
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { Routes } = require('discord-api-types/v9');
+
 const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 const {
     stripHtml
@@ -106,8 +112,11 @@ const embedPage = async (title, fragment, is_redirect = false) => {
 	return e;
     }
 };
+
 global.timestamp = {};
+
 const dispatcher = async (message) => {
+
     if (message.author.bot) return;
     const config = message.member.guild.id in base_config ? base_config[message.member.guild.id] : base_config;
     if(config.prefix) {
@@ -118,6 +127,9 @@ const dispatcher = async (message) => {
     if (config.bans && config.bans.includes(message.member.id)) return console.log('%s is banned', message.member.id);
     const args = message.content.split(/ +/g);
     const command = args.shift().toLowerCase();
+
+
+
     const cooldown = async () => {
         if (config.immune && config.immune.includes(message.member.id)) return false;
         const cd = Math.floor((config.command_cooldown - (message.createdTimestamp - global.timestamp[message.channel.id])) / 1000);
@@ -128,11 +140,7 @@ const dispatcher = async (message) => {
         global.timestamp[message.channel.id] = message.createdTimestamp;
         return false;
     };
-    const ping = async () => {
-        if (await cooldown()) return;
-        const m = await message.channel.send('test');
-        m.edit(`Ping latency: ${m.createdTimestamp - message.createdTimestamp}ms. API Latency: ${Math.round(client.ws.ping)}ms`);
-    };
+
     const wiki = async () => {
         if (await cooldown()) return;
         const search = args.join(' ').replace(/_/g, ' ');
@@ -234,24 +242,78 @@ const dispatcher = async (message) => {
             console.error(err);
         });
     };
-    switch (command) {
-        //case "+ping":
-        //    return await ping();
-        case "+wiki":
-            return await wiki();
-        case "+random":
-            return await random();
-        case "+quiz":
-            return await quiz();
-        case "+help":
-            return await help();
-        default:
-            return;
+
+
+const initSlashCommands = async () => {
+    if (!rest)
+        throw `Rest API is not enabled.`;
+    try {
+        // Register global slash commands
+        const globalSlashCommands = [
+            {
+                data: new SlashCommandBuilder()
+                    .setName('wiki')
+                    .setDescription('ashesofcreation.wiki Discord bot'),
+                async execute(interaction) {
+                    return interaction.reply('https://ashesofcreation.wiki');
+                }
+            },
+            {
+                data: new SlashCommandBuilder()
+                    .setName('wikihelp')
+                    .setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord.'),
+                async execute(interaction) {
+                    return interaction.reply('');
+                }
+            },
+            {
+                data: new SlashCommandBuilder()
+                    .setName('wikirandom')
+                    .setDescription(''),
+                async execute(interaction) {
+                    return interaction.reply('');
+                }
+            },
+            {
+                data: new SlashCommandBuilder()
+                    .setName('wikiquiz')
+                    .setDescription(''),
+                async execute(interaction) {
+                    return interaction.reply('');
+                }
+            }
+        ];
+
+        for (const slashCommand of globalSlashCommands) {
+            client.commands.set(slashCommand.data.name, slashCommand);
+        }
+        await rest.put(
+            Routes.applicationCommands(config.applicationId),
+            { body: globalSlashCommands.map(sc => sc.data) }
+        ).catch(e => {
+            console.error(e);
+        });
+        console.log(`Registered ${globalSlashCommands.length} global slash command(s)`);
+
+        // Respond to slash commands
+
+        client.on('interactionCreate', async interaction => {
+            if (!interaction.isCommand()) return;
+            const slashCommand = client.commands.get(interaction.commandName);
+            if (!slashCommand) return;
+            console.log(interaction);
+        }
+    } catch (err) {
+        utils.error(err);
     }
 };
+
+
+
 client.on('ready', () => {
     console.log(`Bot starting in ${client.guilds.cache.size} servers with ${client.users.cache.size} users`);
     setActivity();
+    initSlashCommands();
 });
 client.on('guildCreate', guild => {
     console.log(`Bot joining ${guild.name} with ${guild.memberCount} members`);
@@ -261,6 +323,7 @@ client.on('guildDelete', guild => {
     console.log(`Bot leaving ${guild.name}`);
     setActivity();
 });
+/*
 client.on('message', async message => {
     await dispatcher(message).catch((e) => {
         console.error({
@@ -268,5 +331,6 @@ client.on('message', async message => {
         });
     });
 });
+*/
 client.login(base_config.token);
 
