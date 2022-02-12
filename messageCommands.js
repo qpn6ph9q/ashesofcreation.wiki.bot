@@ -8,7 +8,7 @@ import { ucFirst, uriWikiEncode, getPageEmbed, embedPage, prepareMessageContent 
 
 async function prepareLegacyMessageContent(content, type) {
     if (type && content?.constructor?.name == 'MessageEmbed')
-        content.setFooter({ text: `Please use /${type} to search the wiki. The !${type} command will no longer work after April 30, 2022 due to Discord rule changes.` });
+        content.setFooter({ text: `Please use /${type} instead of !${type}. The ! commands will no longer work after April 30, 2022 due to Discord rule changes.` });
     return await prepareMessageContent(content);
 }
 
