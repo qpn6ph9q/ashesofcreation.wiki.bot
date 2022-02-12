@@ -103,9 +103,9 @@ export async function initSlashCommands() {
                 async execute(interaction) {
                     if (await cooldown(interaction)) return;
                     const embed = new MessageEmbed().setTitle(`** ashesofcreation.wiki Discord bot **`).setColor('#e69710').setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
-				.addField(`\`\`/wiki search\`\``, `Search ashesofcreation.wiki (top 3 results)`)
+				.addField(`\`\`/wiki TEXT\`\``, `Search ashesofcreation.wiki for TEXT (top 3 results)`)
 				.addField(`\`\`/random\`\``, `Random article from ashesofcreation.wiki`)
-				.addField(`\`\`/random category\`\``, `Random article in category`)
+				.addField(`\`\`/random CATEGORY\`\``, `Random article in CATEGORY`)
 				.addField(`\`\`/quiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
 				.addField('Join our discord!', 'https://discord.gg/HEKx527')
 				.addField('Invite me to your discord!', 'https://top.gg/bot/506608731463876628');
