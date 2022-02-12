@@ -34,5 +34,5 @@ node --experimental-json-modules index.js
 # Adding your ashesofcreation.wiki bot to a Discord server
 - Specify your **APPLICATIONID** in the following URL to add the ashesofcreation.wiki bot to a Discord server you manage.
 ```
-https://discord.com/oauth2/authorize?client_id=941174529647083542&scope=applications.commands%20bot&permissions=2147534848
+https://discord.com/oauth2/authorize?client_id=APPLICATIONID&scope=applications.commands%20bot&permissions=2147534848
 ```
