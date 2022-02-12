@@ -6,9 +6,9 @@ import { XMLHttpRequest } from 'xmlhttprequest';
 
 import { ucFirst, uriWikiEncode, getPageEmbed, embedPage, prepareMessageContent } from './utils.js';
 
-async function prepareLegacyMessageContent(content) {
-    if (content?.constructor?.name == 'MessageEmbed')
-        content.setFooter({ text: 'Please use /wiki to search the wiki. The !wiki command will no longer work after April 30, 2022 due to Discord rule changes.' });
+async function prepareLegacyMessageContent(content, type) {
+    if (type && content?.constructor?.name == 'MessageEmbed')
+        content.setFooter({ text: `Please use /${type} to search the wiki. The !${type} command will no longer work after April 30, 2022 due to Discord rule changes.` });
     return await prepareMessageContent(content);
 }
 
@@ -36,11 +36,11 @@ export async function dispatcher (message) {
         if (await cooldown()) return;
         const search = args.join(' ').replace(/_/g, ' ');
         if (search == '') {
-            message.channel.send(await prepareLegacyMessageContent(await getPageEmbed('Main Page')));
+            message.channel.send(await prepareLegacyMessageContent(await getPageEmbed('Main Page'), 'wiki'));
             return;
         }
         try {
-            return message.channel.send(await prepareLegacyMessageContent(await getPageEmbed(search)));
+            return message.channel.send(await prepareLegacyMessageContent(await getPageEmbed(search), 'wiki'));
         }
         catch (e) {
             console.log('no exact match found for %s: %s', search, e);
@@ -54,12 +54,12 @@ export async function dispatcher (message) {
             return message.channel.send(await prepareLegacyMessageContent('Page not found. Please try again later.'));
         const response = xhr.responseText;
         if (!response)
-            return message.channel.send(await prepareLegacyMessageContent(await embedPage(search))).catch(err => {
+            return message.channel.send(await prepareLegacyMessageContent(await embedPage(search), 'wiki')).catch(err => {
                 console.error(err);
             });
         let location = xhr.getResponseHeader('location');
         if (location)
-            return message.channel.send(await prepareLegacyMessageContent(await embedPage(location)));
+            return message.channel.send(await prepareLegacyMessageContent(await embedPage(location), 'wiki'));
         const json = JSON.parse(response);
         if (!json || !json.query || !json.query.search)
             return message.channel.send(await prepareLegacyMessageContent('Missing response. Try again later.'));
@@ -69,7 +69,7 @@ export async function dispatcher (message) {
         if (!result.length)
             return message.channel.send(await prepareLegacyMessageContent('No matching results. Try something else.'));
         if (result.length == 1) {
-            return message.channel.send(await prepareLegacyMessageContent(await embedPage(result[0].title, result[0].sectiontitle))).catch(err => {
+            return message.channel.send(await prepareLegacyMessageContent(await embedPage(result[0].title, result[0].sectiontitle), 'wiki')).catch(err => {
                 console.error(err);
             });
         }
@@ -87,7 +87,7 @@ export async function dispatcher (message) {
             embed.addField(`${count}: <https://ashesofcreation.wiki/${uriWikiEncode(hit.title, hit.sectiontitle)}>`, `...${m}...`);
             count++;
         };
-        message.channel.send(await prepareLegacyMessageContent(count == 1 ? 'Something went wrong. Try again later.' : embed)).catch(err => {
+        message.channel.send(await prepareLegacyMessageContent(count == 1 ? 'Something went wrong. Try again later.' : embed, 'wiki')).catch(err => {
             console.error(err);
         });
     };
@@ -107,7 +107,7 @@ export async function dispatcher (message) {
             await xhr.send(null);
             location = xhr.getResponseHeader('location');
         }
-        message.channel.send(await prepareLegacyMessageContent(location ? await embedPage(location) : 'Random page not available. Try again later.'));
+        message.channel.send(await prepareLegacyMessageContent(location ? await embedPage(location) : 'Random page not available. Try again later.', 'random'));
     };
     const quiz = async () => {
         if (await cooldown()) return;
@@ -125,7 +125,7 @@ export async function dispatcher (message) {
             .addField(`\`\`/quiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
             .addField('Join our discord!', 'https://discord.gg/HEKx527')
             .addField('Invite me to your discord!', 'https://top.gg/bot/506608731463876628');
-        message.channel.send(await prepareLegacyMessageContent(embed)).catch(err => {
+        message.channel.send(await prepareLegacyMessageContent(embed, 'help')).catch(err => {
             console.error(err);
         });
     };
