@@ -36,7 +36,7 @@ export async function dispatcher (message) {
         if (await cooldown()) return;
         const search = args.join(' ').replace(/_/g, ' ');
         if (search == '') {
-            message.channel.send(await prepareLegacyMessageContent(await getPageEmbed('Ashes of Creation Wiki')));
+            message.channel.send(await prepareLegacyMessageContent(await getPageEmbed('Main Page')));
             return;
         }
         try {
