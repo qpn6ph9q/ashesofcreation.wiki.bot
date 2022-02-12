@@ -13,7 +13,7 @@ Instructions for hosting the ashesofcreation.wiki bot on your own server.
 ```
 git clone https://github.com/qpn6ph9q/ashesofcreation.wiki.bot.git
 ```
-- Copy `config.default.json` to `config.json` then edit `config.json` to specify your **TOKEN**. Example:
+- Copy `config.default.json` to `config.json` then edit `config.json` to specify your **TOKEN** and **APPLICATIONID**. Example:
 ```json
 { 
   "token"  : "****************************************",
