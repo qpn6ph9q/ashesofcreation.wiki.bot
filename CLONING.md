@@ -20,19 +20,15 @@ git clone https://github.com/qpn6ph9q/ashesofcreation.wiki.bot.git
   "applicationId"  : "**********"
 }
 ```
-- Install [node.js and discord.js](https://discordjs.guide/#/preparations/) and other dependencies on your server. Example:
+- Install dependencies on your server. Ensure you are using node 16.13.1 or greater and npm 8.1.2 or greater.
 ```
-npm init -y
-npm install discord.js
-npm install xmlhttprequest
-npm install string-strip-html
-
+npm install
 ```
 
 # Starting the ashesofcreation.wiki bot on your server
 - Run the following command in the the ashesofcreation.wiki bot folder.
 ```
-node index.js
+node --experimental-json-modules index.js
 ```
 
 # Adding your ashesofcreation.wiki bot to a Discord server
