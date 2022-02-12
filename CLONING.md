@@ -5,7 +5,7 @@ Instructions for hosting the ashesofcreation.wiki bot on your own server.
 # Create a bot user on Discord
 
 - Visit Discord's [bot portal](https://discordapp.com/developers/applications/).
-- Create a new application and record the **CLIENTID** number for later use.
+- Create a new application and record the **APPLICATIONID** number for later use.
 - Create a bot for that application and record the **TOKEN** for later use.
 
 # Install the ashesofcreation.wiki bot on your server
@@ -16,8 +16,8 @@ git clone https://github.com/qpn6ph9q/ashesofcreation.wiki.bot.git
 - Copy `config.default.json` to `config.json` then edit `config.json` to specify your **TOKEN**. Example:
 ```json
 { 
-  "token"  : "GBDQ*********************************hxyB",
-  "prefix" : "+"
+  "token"  : "****************************************",
+  "applicationId"  : "**********"
 }
 ```
 - Install [node.js and discord.js](https://discordjs.guide/#/preparations/) and other dependencies on your server. Example:
@@ -36,7 +36,7 @@ node index.js
 ```
 
 # Adding your ashesofcreation.wiki bot to a Discord server
-- Specify your **CLIENTID** in the following URL to add the ashesofcreation.wiki bot to a Discord server you manage.
+- Specify your **APPLICATIONID** in the following URL to add the ashesofcreation.wiki bot to a Discord server you manage.
 ```
-https://discordapp.com/oauth2/authorize?&client_id=CLIENTID&scope=bot&permissions=0
+https://discord.com/oauth2/authorize?client_id=941174529647083542&scope=applications.commands%20bot&permissions=2147534848
 ```
