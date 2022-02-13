@@ -104,7 +104,6 @@ export async function embedPage (title, fragment, is_redirect = false) {
 }
 
 export async function prepareMessageContent(content, text) {
-    //console.log({ content, text });
     if (content && typeof content === 'object') {
         switch (content?.constructor?.name) {
             case 'MessageEmbed':
@@ -126,7 +125,7 @@ export function toPlural(text) {
     if (text in CATMAP)
         return CATMAP[text];
     const plural = pluralize(text) || text;
-    console.log(text, plural);
+    //console.log(text, plural);
     return plural || text;
 }
 

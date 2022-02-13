@@ -20,7 +20,7 @@ const cooldown = async (interaction) => {
     if (config.immune && config.immune.includes(interaction.member.id)) return false;
     const cd = Math.floor((config.command_cooldown - (interaction.createdTimestamp - global.timestamp[interaction.channelId])) / 1000);
     if (config.command_cooldown && cd > 0) {
-        const m = await interaction.reply(await prepareMessageContent(`Command cooldown is in effect. ${cd} seconds remaining`))
+        await interaction.reply({ content: `Command cooldown is in effect. ${cd} seconds remaining`, ephemeral: true });
         return true;
     }
     global.timestamp[interaction.channelId] = interaction.createdTimestamp;
@@ -59,7 +59,7 @@ export async function initSlashCommands() {
                     await xhr.open('GET', query, false);
                     xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
                     await xhr.send(null);
-                    if (xhr.readyState != 4) return await interaction.editReply(await prepareMessageContent('Page not found. Please try again later.'));
+                    if (xhr.readyState != 4) return await interaction.editReply({ content: 'Page not found. Please try again later.', ephemeral: true });
                     const response = xhr.responseText;
                     if (!response) return await interaction.editReply(await prepareMessageContent(await embedPage(search))).catch(err => {
                         console.error(err);
@@ -67,10 +67,10 @@ export async function initSlashCommands() {
                     let location = xhr.getResponseHeader('location');
                     if (location) return await interaction.editReply(await prepareMessageContent(await embedPage(location)));
                     const json = JSON.parse(response);
-                    if (!json || !json.query || !json.query.search) return await interaction.editReply(await prepareMessageContent('Missing response. Try again later.'));
+                    if (!json || !json.query || !json.query.search) return await interaction.editReply({ content: 'Missing response. Try again later.', ephemeral: true });
                     const result = json.query.search;
-                    if (!result) return await interaction.editReply(await prepareMessageContent('Invalid response format. Try again later.'));
-                    if (!result.length) return await interaction.editReply(await prepareMessageContent('No matching results. Try something else.'));
+                    if (!result) return await interaction.editReply({ content: 'Invalid response format. Try again later.', ephemeral: true });
+                    if (!result.length) return await interaction.editReply({ content: 'No matching results. Try something else.', ephemeral: true });
                     if (result.length == 1) {
                         return await interaction.editReply(await prepareMessageContent(await embedPage(result[0].title, result[0].sectiontitle))).catch(err => {
                             console.error(err);
@@ -92,7 +92,7 @@ export async function initSlashCommands() {
                         embed.addField(`${count}: <https://ashesofcreation.wiki/${uriWikiEncode(hit.title, hit.sectiontitle)}>`, `...${m}...`);
                         count++;
                     };
-                    await interaction.editReply(await prepareMessageContent(count == 1 ? 'Something went wrong. Try again later.' : embed)).catch(err => {
+                    await interaction.editReply(count == 1 ? { content: 'Something went wrong. Try again later.', ephemeral: true } : await prepareMessageContent(embed)).catch(err => {
                         console.error(err);
                     });
                 }
@@ -133,7 +133,7 @@ export async function initSlashCommands() {
                         await xhr.send(null);
                         location = xhr.getResponseHeader('location');
                     }
-                    await interaction.editReply(await prepareMessageContent(location ? await embedPage(location) : 'Random page not available. Try again later.'));
+                    await interaction.editReply(location ? await prepareMessageContent(await embedPage(location)) : { content: 'Random page not available. Try again later.', ephemeral: true });
                 }
             },
             {
