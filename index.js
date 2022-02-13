@@ -29,20 +29,55 @@ try {
 }
 
 global.client.on('ready', async () => {
-    console.log(`Bot starting in ${global.client.guilds.cache.size} servers with ${global.client.users.cache.size} users`);
-    setActivity();
-    initSlashCommands();
+    try {
+        console.log(`Bot starting in ${global.client.guilds.cache.size} servers with ${global.client.users.cache.size} users`);
+        setActivity();
+        initSlashCommands();
+    }
+    catch (e) {
+        console.error({
+            event: 'ready',
+            e
+        });
+    }
 });
 global.client.on('guildCreate', async guild => {
-    console.log(`Bot joining ${guild.name} with ${guild.memberCount} members`);
-    setActivity();
+    try {
+        console.log(`Bot joining ${guild.name} with ${guild.memberCount} members`);
+        setActivity();
+    }
+    catch (e) {
+        console.error({
+            event: 'guildCreate',
+            guild,
+            e
+        });
+    }
 });
 global.client.on('guildDelete', async guild => {
-    console.log(`Bot leaving ${guild.name}`);
-    setActivity();
+    try {
+        console.log(`Bot leaving ${guild.name}`);
+        setActivity();
+    }
+    catch (e) {
+        console.error({
+            event: 'guildDelete',
+            guild,
+            e
+        });
+    }
 });
 global.client.on('messageCreate', async message => {
-    await dispatcher(message);
+    try {
+        await dispatcher(message);
+    }
+    catch (e) {
+        console.error({
+            event: 'messageCreate',
+            message,
+            e
+        });
+    }
 });
 
 global.client.login(config.token);

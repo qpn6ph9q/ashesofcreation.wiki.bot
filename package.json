@@ -5,6 +5,7 @@
     "@discordjs/rest": "^0.3.0",
     "discord-api-types": "^0.26.1",
     "discord.js": "^13.6.0",
+    "pluralize": "^8.0.0",
     "string-strip-html": "^9.1.6",
     "xmlhttprequest": "^1.8.0"
   }

@@ -4,6 +4,18 @@ const DESCRIPTION_SIZE = 349;
 import { MessageEmbed } from 'discord.js';
 import { stripHtml } from 'string-strip-html';
 import { XMLHttpRequest } from 'xmlhttprequest';
+import pluralize from 'pluralize';
+
+const CATMAP = {
+    'bird': 'avian',
+    'birds': 'avian',
+    'Bird': 'Avian',
+    'Birds': 'Avian',
+    'staff': 'staves',
+    'staffs': 'staves',
+    'Staff': 'Staves',
+    'Staffs': 'Staves',
+};
 
 export function setActivity() {
     global.client.user.setActivity(` on ${global.client.guilds.cache.size} discords | +help`, {
@@ -109,5 +121,17 @@ export async function prepareMessageContent(content, text) {
         return text ? { content: text } : '??';
     return text ? { content: [content, text] } : content;
 };
+
+export function toPlural(text) {
+    if (text in CATMAP)
+        return CATMAP[text];
+    const plural = pluralize(text) || text;
+    console.log(text, plural);
+    return plural || text;
+}
+
+export function isPlural(text) {
+    return pluralize(text) == text;
+}
 
 export default () => { };

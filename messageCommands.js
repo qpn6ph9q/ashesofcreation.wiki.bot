@@ -4,7 +4,7 @@ import { MessageEmbed } from 'discord.js';
 
 import { XMLHttpRequest } from 'xmlhttprequest';
 
-import { ucFirst, uriWikiEncode, getPageEmbed, embedPage, prepareMessageContent } from './utils.js';
+import { ucFirst, uriWikiEncode, getPageEmbed, embedPage, prepareMessageContent, toPlural, isPlural } from './utils.js';
 
 async function prepareLegacyMessageContent(content, type) {
     if (type && content?.constructor?.name == 'MessageEmbed')
@@ -102,8 +102,9 @@ export async function dispatcher (message) {
         await xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
         await xhr.send(null);
         let location = xhr.getResponseHeader('location');
-        if (!location && !category.match(/s$/i)) {
-            await xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomArticleInCategory/${category}s`, false);
+        if (!location && !isPlural(category)) {
+            const plural = toPlural(category);
+            await xhr.open('GET', `https://ashesofcreation.wiki/Special:RandomArticleInCategory/${plural}`, false);
             await xhr.send(null);
             location = xhr.getResponseHeader('location');
         }
