@@ -16,11 +16,12 @@ import dispatcher from './messageCommands.js';
 
 try {
     if (config.topggtoken) {
-        const topgg = require('topgg-autoposter')
-        const ap = topgg(config.topggtoken, global.client);
-        ap.on('posted', () => {
-            //console.log('Posted stats to top.gg');
-        });
+        import ('topgg-autoposter').then(topgg => {
+	  const ap = topgg.AutoPoster(config.topggtoken, global.client);
+          ap.on('posted', () => {
+            console.log('Posted stats to top.gg');
+          });
+	});
     }
 } catch (e) {
     console.error({
