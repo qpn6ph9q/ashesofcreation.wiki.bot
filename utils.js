@@ -18,7 +18,7 @@ const CATMAP = {
 };
 
 export function setActivity() {
-    global.client.user.setActivity(` on ${global.client.guilds.cache.size} discords | +help`, {
+    global.client.user.setActivity(` on ${global.client.guilds.cache.size} discords | /help`, {
         type: 'PLAYING'
     })
 }
