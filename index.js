@@ -19,7 +19,7 @@ try {
         import ('topgg-autoposter').then(topgg => {
 	  const ap = topgg.AutoPoster(config.topggtoken, global.client);
           ap.on('posted', () => {
-            console.log('Posted stats to top.gg');
+            //console.log('Posted stats to top.gg');
           });
 	});
     }
