@@ -15,6 +15,8 @@ const CATMAP = {
     'staffs': 'staves',
     'Staff': 'Staves',
     'Staffs': 'Staves',
+    'Armour': 'Armor',
+    'armour': 'armor'
 };
 
 export function setActivity() {
