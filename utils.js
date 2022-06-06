@@ -39,10 +39,12 @@ export function uriWikiEncode (uri, fragment) {
 
 export async function getPageEmbed (title, fragment, is_redirect = false) {
     let matches;
-    if (matches = title.match(/\/?([^#]+)#(.+)$/)) {
-        fragment = matches[2];
-        title = matches[1];
-    } else if (matches = title.match(/\/([^\/]+)$/)) title = matches[1];
+    if (title.match(/^http/i)) {
+        if (matches = title.match(/\/?([^#]+)#(.+)$/)) {
+            fragment = matches[2];
+            title = matches[1];
+        } else if (matches = title.match(/\/([^\/]+)$/)) title = matches[1];
+    }
     title = decodeURIComponent(decodeURIComponent(title));
     if (fragment) {
         fragment = decodeURIComponent(decodeURIComponent(fragment));
