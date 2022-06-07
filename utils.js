@@ -45,6 +45,9 @@ export async function getPageEmbed (title, fragment, is_redirect = false) {
             title = matches[1];
         } else if (matches = title.match(/\/([^\/]+)$/)) title = matches[1];
     }
+    else {
+        title = title.replace(/^\/+/, '');
+    }
     title = decodeURIComponent(decodeURIComponent(title));
     if (fragment) {
         fragment = decodeURIComponent(decodeURIComponent(fragment));
