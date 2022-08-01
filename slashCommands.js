@@ -47,7 +47,7 @@ export async function initSlashCommands() {
                 async execute(interaction) {
                     if (await cooldown(interaction)) return;
                     await interaction.deferReply();
-                    const search = interaction.options.getString('search');
+                    const search = interaction.options.getString('search').replace(/[_\r\n\t]/g, ' ');
                     if (!search) return await interaction.editReply(await prepareMessageContent('https://ashesofcreation.wiki'));
                     try {
                         return await interaction.editReply(await prepareMessageContent(await getPageEmbed(search)));

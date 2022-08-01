@@ -34,7 +34,7 @@ export async function dispatcher (message) {
     };
     const wiki = async () => {
         if (await cooldown()) return;
-        const search = args.join(' ').replace(/_/g, ' ');
+        const search = args.join(' ').replace(/[_\r\n\t]/g, ' ');
         if (search == '') {
             message.channel.send(await prepareLegacyMessageContent(await getPageEmbed('Main Page'), 'wiki'));
             return;
