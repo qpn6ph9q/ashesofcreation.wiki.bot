@@ -7,8 +7,8 @@ import { XMLHttpRequest } from 'xmlhttprequest';
 import { ucFirst, uriWikiEncode, getPageEmbed, embedPage, prepareMessageContent, toPlural, isPlural } from './utils.js';
 
 async function prepareLegacyMessageContent(content, type) {
-    //if (type && content?.constructor?.name == 'MessageEmbed')
-    //    content.setFooter({ text: `Please use /${type} instead of !${type}. The ! commands will no longer work after April 30, 2022 due to Discord rule changes.` });
+    if (type && content?.constructor?.name == 'MessageEmbed')
+        content.setFooter({ text: `Please use /${type} instead of !${type}. The ! commands will no longer work after August 31, 2022 due to Discord rule changes.` });
     return await prepareMessageContent(content);
 }
 
