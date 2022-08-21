@@ -43,7 +43,7 @@ export async function initSlashCommands() {
                     .setDescription('Search ashesofcreation.wiki (top 3 results)')
                     .addStringOption(option => option.setName('search')
                         .setDescription('Text to search for on the wiki')
-                        .setRequired(false)),
+                        .setRequired(true)),
                 async execute(interaction) {
                     if (await cooldown(interaction)) return;
                     await interaction.deferReply();
