@@ -110,10 +110,6 @@ export async function dispatcher (message) {
         }
         message.channel.send(await prepareLegacyMessageContent(location ? await embedPage(location) : 'Random page not available. Try again later.', 'random'));
     };
-    const quiz = async () => {
-        if (await cooldown()) return;
-        message.channel.send('https://quiz.ashesofcreation.wiki/quiz_list_guest/');
-    };
     const help = async () => {
         if (await cooldown()) return;
         const embed = new MessageEmbed()
@@ -123,7 +119,6 @@ export async function dispatcher (message) {
             .addField(`\`\`/wiki TEXT\`\``, `Search ashesofcreation.wiki for TEXT (top 3 results)`)
             .addField(`\`\`/random\`\``, `Random article from ashesofcreation.wiki`)
             .addField(`\`\`/random CATEGORY\`\``, `Random article in CATEGORY`)
-            .addField(`\`\`/quiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
             .addField('Join our discord!', 'https://discord.gg/HEKx527')
             .addField('Invite me to your discord!', 'https://top.gg/bot/506608731463876628');
         message.channel.send(await prepareLegacyMessageContent(embed, 'help')).catch(err => {
@@ -135,8 +130,6 @@ export async function dispatcher (message) {
             return await wiki();
         case "+random":
             return await random();
-        case "+quiz":
-            return await quiz();
         case "+help":
             return await help();
         default:

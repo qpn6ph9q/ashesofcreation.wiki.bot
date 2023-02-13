@@ -106,7 +106,6 @@ export async function initSlashCommands() {
 				.addField(`\`\`/wiki TEXT\`\``, `Search ashesofcreation.wiki for TEXT (top 3 results)`)
 				.addField(`\`\`/random\`\``, `Random article from ashesofcreation.wiki`)
 				.addField(`\`\`/random CATEGORY\`\``, `Random article in CATEGORY`)
-				.addField(`\`\`/quiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
 				.addField('Join our discord!', 'https://discord.gg/HEKx527')
 				.addField('Invite me to your discord!', 'https://top.gg/bot/506608731463876628');
                     if (config.command_cooldown) embed.setFooter({ text: `Command cooldown is set to ${config.command_cooldown / 1000} seconds` });
@@ -134,14 +133,6 @@ export async function initSlashCommands() {
                         location = xhr.getResponseHeader('location');
                     }
                     await interaction.editReply(location ? await prepareMessageContent(await embedPage(location)) : { content: 'Random page not available. Try again later.', ephemeral: true });
-                }
-            },
-            {
-                data: new SlashCommandBuilder().setName('quiz')
-                    .setDescription('Take the Ashes of Creation Trivianator quiz'),
-                async execute(interaction) {
-                    if (await cooldown(interaction)) return;
-                    return await interaction.reply('https://quiz.ashesofcreation.wiki/quiz_list_guest/');
                 }
             }
         ];
