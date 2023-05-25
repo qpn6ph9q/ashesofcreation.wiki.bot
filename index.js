@@ -12,7 +12,7 @@ import { setActivity } from './utils.js';
 
 import initSlashCommands from './slashCommands.js';
 
-import dispatcher from './messageCommands.js';
+//import dispatcher from './messageCommands.js';
 
 try {
     if (config.topggtoken) {
@@ -64,18 +64,6 @@ global.client.on('guildDelete', async guild => {
         console.error({
             event: 'guildDelete',
             guild,
-            e
-        });
-    }
-});
-global.client.on('messageCreate', async message => {
-    try {
-        await dispatcher(message);
-    }
-    catch (e) {
-        console.error({
-            event: 'messageCreate',
-            message,
             e
         });
     }
