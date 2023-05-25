@@ -132,7 +132,6 @@ export function toPlural(text) {
 	if (text in CATMAP)
 		return CATMAP[text];
 	const plural = pluralize(text) || text;
-	//console.log(text, plural);
 	return plural || text;
 }
 
