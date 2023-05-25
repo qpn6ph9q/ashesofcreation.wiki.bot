@@ -1,6 +1,9 @@
 global.timestamp = {};
 
-import config from './config.json';
+//import config from './config.json';
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const config = require('./config.json');
 
 import { Client, Intents } from 'discord.js';
 
