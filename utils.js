@@ -92,7 +92,7 @@ export async function getPageEmbed (title, fragment, is_redirect = false) {
         .setTitle(page_title)
         .setColor('#e69710')
         .setURL(page_url)
-        .addField(`Learn more here`, `${page_url}`);
+        .addFields({name: `Learn more here`, value:`${page_url}`});
     if (description) {
         description = stripHtml(description).result;
         if (description.length > DESCRIPTION_SIZE) description = description.substring(0, DESCRIPTION_SIZE).trim() + '...';
