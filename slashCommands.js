@@ -1,6 +1,8 @@
+import { createRequire } from "module"; 
+const require = createRequire(import.meta.url);
 import config from './config.json';
 
-import { REST, Routes, MessageEmbed, Collection } from 'discord.js';
+import { REST, Routes, EmbedBuilder, Collection } from 'discord.js';
 
 import { SlashCommandBuilder } from '@discordjs/builders';
 
@@ -71,7 +73,7 @@ export async function initSlashCommands() {
 						});
 					}
 					result.length = 3;
-					const embed = new MessageEmbed()
+					const embed = new EmbedBuilder()
 						.setTitle(`Ashes of Creation Wiki search results`)
 						.setColor('#e69710');
 					let count = 1;
@@ -83,7 +85,7 @@ export async function initSlashCommands() {
 						m = m.replace(/<[^>]+>/g, '');
 						m = m.replace(/&quot;/g, '"');
 						m = m.replace(/&amp;/g, '&');
-						embed.addField(`${count}: <https://ashesofcreation.wiki/${uriWikiEncode(hit.title, hit.sectiontitle)}>`, `...${m}...`);
+						embed.addFields({name: `${count}: <https://ashesofcreation.wiki/${uriWikiEncode(hit.title, hit.sectiontitle)}>`,  value:`...${m}...`});
 						count++;
 					};
 					await interaction.editReply(await prepareMessageContent(count == 1 ? 'Something went wrong. Try again later.' : embed)).catch(err => {
@@ -96,13 +98,12 @@ export async function initSlashCommands() {
 					.setDescription('Using the ashesofcreation.wiki Discord bot'),
 				async execute(interaction) {
 					if (await cooldown(interaction)) return;
-					const embed = new MessageEmbed().setTitle(`** ashesofcreation.wiki Discord bot **`).setColor('#e69710').setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
-						.addField(`\`\`/wiki TEXT\`\``, `Search ashesofcreation.wiki for TEXT (top 3 results)`)
-						.addField(`\`\`/random\`\``, `Random article from ashesofcreation.wiki`)
-						.addField(`\`\`/random CATEGORY\`\``, `Random article in CATEGORY`)
-						.addField(`\`\`/quiz\`\``, `Take the Ashes of Creation Trivianator quiz`)
-						.addField('Join our discord!', 'https://discord.gg/HEKx527')
-						.addField('Invite me to your discord!', 'https://top.gg/bot/506608731463876628');
+					const embed = new EmbedBuilder().setTitle(`** ashesofcreation.wiki Discord bot **`).setColor('#e69710').setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
+						.addFields([{name: `\`\`/wiki TEXT\`\``, value: `Search ashesofcreation.wiki for TEXT (top 3 results)`},
+						{name: `\`\`/random\`\``, value: `Random article from ashesofcreation.wiki`},
+						{name: `\`\`/random CATEGORY\`\``, value: `Random article in CATEGORY`},
+						{name: 'Join our discord!', value: 'https://discord.gg/HEKx527'},
+						{name: 'Invite me to your discord!', value: 'https://top.gg/bot/506608731463876628'} ]);
 					if (config.command_cooldown) embed.setFooter({ text: `Command cooldown is set to ${config.command_cooldown / 1000} seconds` });
 					await interaction.reply(await prepareMessageContent(embed));
 				}

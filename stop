@@ -1,2 +1,2 @@
 #!/bin/bash
-forever stop index.js
+forever stop -c "node --experimental-json-modules" index.js

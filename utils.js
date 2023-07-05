@@ -1,7 +1,7 @@
 const THUMBNAIL_SIZE = 800;
 const DESCRIPTION_SIZE = 349;
 
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { stripHtml } from 'string-strip-html';
 import { XMLHttpRequest } from 'xmlhttprequest';
 
@@ -68,12 +68,12 @@ export async function getPageEmbed(title, fragment, is_redirect = false) {
 		}
 	}
 	if (!description && page.pageprops && page.pageprops.description) description = page.pageprops.description;
-	const embed = new MessageEmbed()
+	const embed = new EmbedBuilder()
 		.setAuthor({ name: 'Ashes of Creation Wiki' })
 		.setTitle(page_title)
 		.setColor('#e69710')
 		.setURL(page_url)
-		.addField(`Learn more here`, `${page_url}`);
+		.addFields({name: `Learn more here`, value: `${page_url}`});
 	if (description) {
 		description = stripHtml(description).result;
 		if (description.length > DESCRIPTION_SIZE) description = description.substring(0, DESCRIPTION_SIZE).trim() + '...';
@@ -95,7 +95,7 @@ export async function prepareMessageContent(content, text) {
 	//console.log({ content, text });
 	if (content && typeof content === 'object') {
 		switch (content?.constructor?.name) {
-			case 'MessageEmbed':
+			case 'EmbedBuilder':
 				return text ? { content: text, embeds: [content] } : { embeds: [content] };
 			case 'Number':
 			case 'String':

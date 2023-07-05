@@ -1,11 +1,13 @@
 global.timestamp = {};
 
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
 import config from './config.json';
 
-import { Client, Intents } from 'discord.js';
+import { Client, IntentsBitField } from 'discord.js';
 
 global.client = new Client({
-	intents: [Intents.FLAGS.GUILDS]
+	intents: new IntentsBitField().add(IntentsBitField.Flags.Guilds)
 });
 
 import { setActivity } from './utils.js';
