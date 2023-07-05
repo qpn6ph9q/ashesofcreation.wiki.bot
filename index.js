@@ -1,75 +1,41 @@
 global.timestamp = {};
 
-//import config from './config.json';
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-const config = require('./config.json');
+import config from './config.json';
 
 import { Client, Intents } from 'discord.js';
 
 global.client = new Client({
-    intents: [ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES ]
+	intents: [Intents.FLAGS.GUILDS]
 });
 
 import { setActivity } from './utils.js';
 
 import initSlashCommands from './slashCommands.js';
 
-//import dispatcher from './messageCommands.js';
-
 try {
-    if (config.topggtoken) {
-        import ('topgg-autoposter').then(topgg => {
-	  const ap = topgg.AutoPoster(config.topggtoken, global.client);
-          ap.on('posted', () => {
-            //console.log('Posted stats to top.gg');
-          });
-	});
-    }
+	if (config.topggtoken) {
+		const topgg = require('topgg-autoposter')
+		const ap = topgg(config.topggtoken, global.client);
+		ap.on('posted', () => {});
+	}
 } catch (e) {
-    console.error({
-        topgg_exception: e
-    });
+	console.error({
+		topgg_exception: e
+	});
 }
 
 global.client.on('ready', async () => {
-    try {
-        console.log(`Bot starting in ${global.client.guilds.cache.size} servers with ${global.client.users.cache.size} users`);
-        setActivity();
-        initSlashCommands();
-    }
-    catch (e) {
-        console.error({
-            event: 'ready',
-            e
-        });
-    }
+	console.log(`Bot starting in ${global.client.guilds.cache.size} servers with ${global.client.users.cache.size} users`);
+	setActivity();
+	initSlashCommands();
 });
 global.client.on('guildCreate', async guild => {
-    try {
-        console.log(`Bot joining ${guild.name} with ${guild.memberCount} members`);
-        setActivity();
-    }
-    catch (e) {
-        console.error({
-            event: 'guildCreate',
-            guild,
-            e
-        });
-    }
+	console.log(`Bot joining ${guild.name} with ${guild.memberCount} members`);
+	setActivity();
 });
 global.client.on('guildDelete', async guild => {
-    try {
-        console.log(`Bot leaving ${guild.name}`);
-        setActivity();
-    }
-    catch (e) {
-        console.error({
-            event: 'guildDelete',
-            guild,
-            e
-        });
-    }
+	console.log(`Bot leaving ${guild.name}`);
+	setActivity();
 });
 
 global.client.login(config.token);

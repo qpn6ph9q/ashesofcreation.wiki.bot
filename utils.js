@@ -4,50 +4,31 @@ const DESCRIPTION_SIZE = 349;
 import { MessageEmbed } from 'discord.js';
 import { stripHtml } from 'string-strip-html';
 import { XMLHttpRequest } from 'xmlhttprequest';
-import pluralize from 'pluralize';
-
-const CATMAP = {
-    'bird': 'avian',
-    'birds': 'avian',
-    'Bird': 'Avian',
-    'Birds': 'Avian',
-    'staff': 'staves',
-    'staffs': 'staves',
-    'Staff': 'Staves',
-    'Staffs': 'Staves',
-    'Armour': 'Armor',
-    'armour': 'armor'
-};
 
 export function setActivity() {
-    global.client.user.setActivity(` on ${global.client.guilds.cache.size} discords | /help`, {
-        type: 'PLAYING'
-    })
+	global.client.user.setActivity(` on ${global.client.guilds.cache.size} discords | +help`, {
+		type: 'PLAYING'
+	})
 }
 
-export function ucFirst (str) {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1);
+export function ucFirst(str) {
+	if (!str) return '';
+	return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function uriWikiEncode (uri, fragment) {
-    uri = ucFirst(uri);
-    uri = uri.replace(/ /g, '_');
-    if (fragment) return `${encodeURIComponent(uri)}#${encodeURIComponent(fragment)}`;
-    return encodeURIComponent(uri);
+export function uriWikiEncode(uri, fragment) {
+	uri = ucFirst(uri);
+	uri = uri.replace(/ /g, '_');
+	if (fragment) return `${encodeURIComponent(uri)}#${encodeURIComponent(fragment)}`;
+	return encodeURIComponent(uri);
 }
 
 export async function getPageEmbed(title, fragment, is_redirect = false) {
 	let matches;
-	if (title.match(/^http/i)) {
-		if (matches = title.match(/\/?([^#]+)#(.+)$/)) {
-			fragment = matches[2];
-			title = matches[1];
-		} else if (matches = title.match(/\/([^\/]+)$/)) title = matches[1];
-	}
-	else {
-		title = title.replace(/^\/+/, '');
-	}
+	if (matches = title.match(/\/?([^#]+)#(.+)$/)) {
+		fragment = matches[2];
+		title = matches[1];
+	} else if (matches = title.match(/\/([^\/]+)$/)) title = matches[1];
 	title = decodeURIComponent(decodeURIComponent(title));
 	if (fragment) {
 		fragment = decodeURIComponent(decodeURIComponent(fragment));
@@ -92,7 +73,7 @@ export async function getPageEmbed(title, fragment, is_redirect = false) {
 		.setTitle(page_title)
 		.setColor('#e69710')
 		.setURL(page_url)
-		.addFields({ name: `Learn more here`, value: `${page_url}` });
+		.addField(`Learn more here`, `${page_url}`);
 	if (description) {
 		description = stripHtml(description).result;
 		if (description.length > DESCRIPTION_SIZE) description = description.substring(0, DESCRIPTION_SIZE).trim() + '...';
@@ -102,41 +83,31 @@ export async function getPageEmbed(title, fragment, is_redirect = false) {
 	return embed;
 }
 
-export async function embedPage (title, fragment, is_redirect = false) {
-    try {
-        return await getPageEmbed(title, fragment, is_redirect);
-    } catch (e) {
-        return e;
-    }
+export async function embedPage(title, fragment, is_redirect = false) {
+	try {
+		return await getPageEmbed(title, fragment, is_redirect);
+	} catch (e) {
+		return e;
+	}
 }
 
 export async function prepareMessageContent(content, text) {
-    if (content && typeof content === 'object') {
-        switch (content?.constructor?.name) {
-            case 'MessageEmbed':
-                return text ? { content: text, embeds: [content] } : { embeds: [content] };
-            case 'Number':
-            case 'String':
-            case 'undefined':
-                break;
-            default:
-                content = content.toString();
-        }
-    }
-    if (!content)
-        return text ? { content: text } : '??';
-    return text ? { content: [content, text] } : content;
+	//console.log({ content, text });
+	if (content && typeof content === 'object') {
+		switch (content?.constructor?.name) {
+			case 'MessageEmbed':
+				return text ? { content: text, embeds: [content] } : { embeds: [content] };
+			case 'Number':
+			case 'String':
+			case 'undefined':
+				break;
+			default:
+				content = content.toString();
+		}
+	}
+	if (!content)
+		return text ? { content: text } : '??';
+	return text ? { content: [content, text] } : content;
 };
-
-export function toPlural(text) {
-	if (text in CATMAP)
-		return CATMAP[text];
-	const plural = pluralize(text) || text;
-	return plural || text;
-}
-
-export function isPlural(text) {
-    return pluralize(text) == text;
-}
 
 export default () => { };

@@ -1,8 +1,7 @@
-﻿################################################################################
+﻿﻿################################################################################
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/config.json
 /node_modules
 /package-lock.json
 /test.js
@@ -11,4 +10,5 @@
 /.vs/slnx.sqlite
 /.vs/VSWorkspaceState.json
 /.node-xmlhttprequest-sync-96
+/config.json
 /.vs/ashesofcreation.wiki.bot/config
