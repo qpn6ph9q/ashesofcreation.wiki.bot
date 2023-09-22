@@ -130,14 +130,6 @@ export async function initSlashCommands() {
 					await interaction.editReply(await prepareMessageContent(location ? await embedPage(location) : 'Random page not available. Try again later.'));
 				}
 			},
-			{
-				data: new SlashCommandBuilder().setName('quiz')
-					.setDescription('Take the Ashes of Creation Trivianator quiz'),
-				async execute(interaction) {
-					if (await cooldown(interaction)) return;
-					return await interaction.reply('https://quiz.ashesofcreation.wiki/quiz_list_guest/');
-				}
-			}
 		];
 		for (const slashCommand of globalSlashCommands) {
 			global.client.commands.set(slashCommand.data.name, slashCommand);

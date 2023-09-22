@@ -1,3 +1,4 @@
 #!/bin/bash
-pm2 logs index.js
+#pm2 start index.js --node-args="--experimental-json-modules" --watch && pm2 logs
+forever logs -c "node --experimental-json-modules" index.js -f
 
