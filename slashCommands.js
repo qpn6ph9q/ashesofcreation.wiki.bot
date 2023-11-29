@@ -1,4 +1,4 @@
-import { createRequire } from "module"; 
+import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 import config from './config.json';
 
@@ -31,6 +31,58 @@ export async function initSlashCommands() {
 		console.error('Rest API is not enabled.');
 		return;
 	}
+	const wiki = async (interaction, ephemeral, max_results = 3) => {
+		if (await cooldown(interaction)) return;
+		await interaction.deferReply({ ephemeral });
+		const search = interaction.options.getString('search');
+		if (!search) return await interaction.editReply(await prepareMessageContent(await getPageEmbed('Ashes of Creation Wiki')));
+		try {
+			return await interaction.editReply(await prepareMessageContent(await getPageEmbed(search)));
+		} catch (e) {
+			console.log('no exact match found for %s: %s', search, e);
+		}
+		const query = `https://ashesofcreation.wiki/api.php?action=query&format=json&prop=&list=search&srsearch=${uriWikiEncode(search)}&formatversion=2&&srprop=size%7Cwordcount%7Ctimestamp%7Csnippet%7Csectiontitle%7Csectionsnippet&srenablerewrites=1`;
+		const xhr = new XMLHttpRequest();
+		await xhr.open('GET', query, false);
+		xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
+		await xhr.send(null);
+		if (xhr.readyState != 4) return await interaction.editReply(await prepareMessageContent('Page not found. Please try again later.'));
+		const response = xhr.responseText;
+		if (!response) return await interaction.editReply(await prepareMessageContent(await embedPage(search))).catch(err => {
+			console.error(err);
+		});
+		let location = xhr.getResponseHeader('location');
+		if (location) return await interaction.editReply(await prepareMessageContent(await embedPage(location)));
+		const json = JSON.parse(response);
+		if (!json || !json.query || !json.query.search) return await interaction.editReply(await prepareMessageContent('Missing response. Try again later.'));
+		const result = json.query.search;
+		if (!result) return await interaction.editReply(await prepareMessageContent('Invalid response format. Try again later.'));
+		if (!result.length) return await interaction.editReply(await prepareMessageContent('No matching results. Try something else.'));
+		if (result.length == 1) {
+			return await interaction.editReply(await prepareMessageContent(await embedPage(result[0].title, result[0].sectiontitle))).catch(err => {
+				console.error(err);
+			});
+		}
+		result.length = max_results;
+		const embed = new EmbedBuilder()
+			.setTitle(`Ashes of Creation Wiki search results`)
+			.setColor('#e69710');
+		let count = 1;
+		for (const hit of result) {
+			if (!hit?.title) continue;
+			let m = hit.snippet.toString();
+			m = m.replace(/<span[^>]+>([^<]+)<\/span>/g, '***$1***');
+			m = m.replace(/\uE000([^\uE001]+)\uE001/g, '***$1***');
+			m = m.replace(/<[^>]+>/g, '');
+			m = m.replace(/&quot;/g, '"');
+			m = m.replace(/&amp;/g, '&');
+			embed.addFields({ name: `${count}: <https://ashesofcreation.wiki/${uriWikiEncode(hit.title, hit.sectiontitle)}>`, value: `...${m}...` });
+			count++;
+		};
+		await interaction.editReply(await prepareMessageContent(count == 1 ? 'Something went wrong. Try again later.' : embed)).catch(err => {
+			console.error(err);
+		});
+	};
 	global.client.commands = new Collection();
 	try {
 		const globalSlashCommands = [
@@ -41,56 +93,17 @@ export async function initSlashCommands() {
 						.setDescription('Text to search for on the wiki')
 						.setRequired(false)),
 				async execute(interaction) {
-					if (await cooldown(interaction)) return;
-					await interaction.deferReply();
-					const search = interaction.options.getString('search');
-					if (!search) return await interaction.editReply(await prepareMessageContent(await getPageEmbed('Ashes of Creation Wiki')));
-					try {
-						return await interaction.editReply(await prepareMessageContent(await getPageEmbed(search)));
-					} catch (e) {
-						console.log('no exact match found for %s: %s', search, e);
-					}
-					const query = `https://ashesofcreation.wiki/api.php?action=query&format=json&prop=&list=search&srsearch=${uriWikiEncode(search)}&formatversion=2&&srprop=size%7Cwordcount%7Ctimestamp%7Csnippet%7Csectiontitle%7Csectionsnippet&srenablerewrites=1`;
-					const xhr = new XMLHttpRequest();
-					await xhr.open('GET', query, false);
-					xhr.setRequestHeader('Content-Type', 'text/plain;charset=iso-8859-1');
-					await xhr.send(null);
-					if (xhr.readyState != 4) return await interaction.editReply(await prepareMessageContent('Page not found. Please try again later.'));
-					const response = xhr.responseText;
-					if (!response) return await interaction.editReply(await prepareMessageContent(await embedPage(search))).catch(err => {
-						console.error(err);
-					});
-					let location = xhr.getResponseHeader('location');
-					if (location) return await interaction.editReply(await prepareMessageContent(await embedPage(location)));
-					const json = JSON.parse(response);
-					if (!json || !json.query || !json.query.search) return await interaction.editReply(await prepareMessageContent('Missing response. Try again later.'));
-					const result = json.query.search;
-					if (!result) return await interaction.editReply(await prepareMessageContent('Invalid response format. Try again later.'));
-					if (!result.length) return await interaction.editReply(await prepareMessageContent('No matching results. Try something else.'));
-					if (result.length == 1) {
-						return await interaction.editReply(await prepareMessageContent(await embedPage(result[0].title, result[0].sectiontitle))).catch(err => {
-							console.error(err);
-						});
-					}
-					result.length = 3;
-					const embed = new EmbedBuilder()
-						.setTitle(`Ashes of Creation Wiki search results`)
-						.setColor('#e69710');
-					let count = 1;
-					for (const hit of result) {
-						if (!hit?.title) continue;
-						let m = hit.snippet.toString();
-						m = m.replace(/<span[^>]+>([^<]+)<\/span>/g, '***$1***');
-						m = m.replace(/\uE000([^\uE001]+)\uE001/g, '***$1***');
-						m = m.replace(/<[^>]+>/g, '');
-						m = m.replace(/&quot;/g, '"');
-						m = m.replace(/&amp;/g, '&');
-						embed.addFields({name: `${count}: <https://ashesofcreation.wiki/${uriWikiEncode(hit.title, hit.sectiontitle)}>`,  value:`...${m}...`});
-						count++;
-					};
-					await interaction.editReply(await prepareMessageContent(count == 1 ? 'Something went wrong. Try again later.' : embed)).catch(err => {
-						console.error(err);
-					});
+					return await wiki(interaction, false);
+				}
+			},
+			{
+				data: new SlashCommandBuilder().setName('search')
+					.setDescription('Search ashesofcreation.wiki (top 5 results - not visible to others)')
+					.addStringOption(option => option.setName('search')
+						.setDescription('Text to search for on the wiki')
+						.setRequired(false)),
+				async execute(interaction) {
+					return await wiki(interaction, true, 5);
 				}
 			},
 			{
@@ -99,11 +112,11 @@ export async function initSlashCommands() {
 				async execute(interaction) {
 					if (await cooldown(interaction)) return;
 					const embed = new EmbedBuilder().setTitle(`** ashesofcreation.wiki Discord bot **`).setColor('#e69710').setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
-						.addFields([{name: `\`\`/wiki TEXT\`\``, value: `Search ashesofcreation.wiki for TEXT (top 3 results)`},
-						{name: `\`\`/random\`\``, value: `Random article from ashesofcreation.wiki`},
-						{name: `\`\`/random CATEGORY\`\``, value: `Random article in CATEGORY`},
-						{name: 'Join our discord!', value: 'https://discord.gg/HEKx527'},
-						{name: 'Invite me to your discord!', value: 'https://top.gg/bot/506608731463876628'} ]);
+						.addFields([{ name: `\`\`/wiki TEXT\`\``, value: `Search ashesofcreation.wiki for TEXT (top 3 results)` },
+						{ name: `\`\`/random\`\``, value: `Random article from ashesofcreation.wiki` },
+						{ name: `\`\`/random CATEGORY\`\``, value: `Random article in CATEGORY` },
+						{ name: 'Join our discord!', value: 'https://discord.gg/HEKx527' },
+						{ name: 'Invite me to your discord!', value: 'https://top.gg/bot/506608731463876628' }]);
 					if (config.command_cooldown) embed.setFooter({ text: `Command cooldown is set to ${config.command_cooldown / 1000} seconds` });
 					await interaction.reply(await prepareMessageContent(embed));
 				}
@@ -128,14 +141,6 @@ export async function initSlashCommands() {
 						location = xhr.getResponseHeader('location');
 					}
 					await interaction.editReply(await prepareMessageContent(location ? await embedPage(location) : 'Random page not available. Try again later.'));
-				}
-			},
-			{
-				data: new SlashCommandBuilder().setName('quiz')
-					.setDescription('Take the Ashes of Creation Trivianator quiz'),
-				async execute(interaction) {
-					if (await cooldown(interaction)) return;
-					return await interaction.reply('https://quiz.ashesofcreation.wiki/quiz_list_guest/');
 				}
 			}
 		];
