@@ -88,7 +88,7 @@ export async function initSlashCommands() {
 		const globalSlashCommands = [
 			{
 				data: new SlashCommandBuilder().setName('wiki')
-					.setDescription('Search ashesofcreation.wiki (top 3 results)')
+					.setDescription('Search ashesofcreation.wiki (top 3 results - visible in chat)')
 					.addStringOption(option => option.setName('search')
 						.setDescription('Text to search for on the wiki')
 						.setRequired(false)),
@@ -112,7 +112,8 @@ export async function initSlashCommands() {
 				async execute(interaction) {
 					if (await cooldown(interaction)) return;
 					const embed = new EmbedBuilder().setTitle(`** ashesofcreation.wiki Discord bot **`).setColor('#e69710').setDescription('Concise and accurate information on Ashes of Creation from https://ashesofcreation.wiki delivered directly to your Discord!')
-						.addFields([{ name: `\`\`/wiki TEXT\`\``, value: `Search ashesofcreation.wiki for TEXT (top 3 results)` },
+						.addFields([{ name: `\`\`/wiki TEXT\`\``, value: `Search ashesofcreation.wiki for TEXT (top 3 results - visible in chat)` },
+						.addFields([{ name: `\`\`/search TEXT\`\``, value: `Search ashesofcreation.wiki for TEXT (top 5 results - not visible to others)` },
 						{ name: `\`\`/random\`\``, value: `Random article from ashesofcreation.wiki` },
 						{ name: `\`\`/random CATEGORY\`\``, value: `Random article in CATEGORY` },
 						{ name: 'Join our discord!', value: 'https://discord.gg/HEKx527' },
