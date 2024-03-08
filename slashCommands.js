@@ -117,7 +117,7 @@ export async function initSlashCommands() {
 						{ name: `\`\`/random\`\``, value: `Random article from ashesofcreation.wiki` },
 						{ name: `\`\`/random CATEGORY\`\``, value: `Random article in CATEGORY` },
 						{ name: 'Join our discord!', value: 'https://discord.gg/HEKx527' },
-						{ name: 'Invite me to your discord!', value: 'https://top.gg/bot/506608731463876628' }]);
+						{ name: 'Invite me to your discord!', value: 'https://goo.gl/DMB3Sr' }]);
 					if (config.command_cooldown) embed.setFooter({ text: `Command cooldown is set to ${config.command_cooldown / 1000} seconds` });
 					await interaction.reply(await prepareMessageContent(embed));
 				}
