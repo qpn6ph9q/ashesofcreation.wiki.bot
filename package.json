@@ -2,7 +2,7 @@
   "type": "module",
   "dependencies": {
     "@discordjs/builders": "^1.6.3",
-    "discord.js": "^14.11.0",
+    "discord.js": "^14.14.1",
     "pluralize": "^8.0.0",
     "string-strip-html": "^9.1.6",
     "top.gg": "^2.3.2",

@@ -11,11 +11,11 @@ import { XMLHttpRequest } from 'xmlhttprequest';
 import { ucFirst, uriWikiEncode, getPageEmbed, embedPage, prepareMessageContent } from './utils.js';
 
 const cooldown = async (interaction) => {
-	if (!interaction?.member) {
+	if (!interaction?.member && !interaction?.user) {
 		console.error('invalid_interaction', interaction);
 		return true;
 	}
-	if (config.immune && config.immune.includes(interaction.member.id)) return false;
+	if (config.immune && config.immune.includes(interaction?.member?.id||interaction?.user?.id)) return false;
 	const cd = Math.floor((config.command_cooldown - (interaction.createdTimestamp - global.timestamp[interaction.channelId])) / 1000);
 	if (config.command_cooldown && cd > 0) {
 		const m = await interaction.reply(await prepareMessageContent(`Command cooldown is in effect. ${cd} seconds remaining`))
@@ -88,6 +88,7 @@ export async function initSlashCommands() {
 		const globalSlashCommands = [
 			{
 				data: new SlashCommandBuilder().setName('wiki')
+                    .setDefaultMemberPermissions().setDMPermission(true)
 					.setDescription('Search ashesofcreation.wiki (top 3 results - visible in chat)')
 					.addStringOption(option => option.setName('search')
 						.setDescription('Text to search for on the wiki')
@@ -98,6 +99,7 @@ export async function initSlashCommands() {
 			},
 			{
 				data: new SlashCommandBuilder().setName('search')
+                    .setDefaultMemberPermissions().setDMPermission(true)
 					.setDescription('Search ashesofcreation.wiki (top 5 results - not visible to others)')
 					.addStringOption(option => option.setName('search')
 						.setDescription('Text to search for on the wiki')
@@ -108,6 +110,7 @@ export async function initSlashCommands() {
 			},
 			{
 				data: new SlashCommandBuilder().setName('help')
+                    .setDefaultMemberPermissions().setDMPermission(true)
 					.setDescription('Using the ashesofcreation.wiki Discord bot'),
 				async execute(interaction) {
 					if (await cooldown(interaction)) return;
@@ -124,7 +127,8 @@ export async function initSlashCommands() {
 			},
 			{
 				data: new SlashCommandBuilder().setName('random')
-					.setDescription('Random article from ashesofcreation.wiki')
+					.setDefaultMemberPermissions().setDMPermission(true)
+                    .setDescription('Random article from ashesofcreation.wiki')
 					.addStringOption(option => option.setName('category').setDescription('Random article in category').setRequired(false)),
 				async execute(interaction) {
 					if (await cooldown(interaction)) return;
