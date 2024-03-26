@@ -11,11 +11,8 @@ import { XMLHttpRequest } from 'xmlhttprequest';
 import { ucFirst, uriWikiEncode, getPageEmbed, embedPage, prepareMessageContent } from './utils.js';
 
 const cooldown = async (interaction) => {
-	if (!interaction?.member && !interaction?.user) {
-		console.error('invalid_interaction', interaction);
-		return true;
-	}
-	if (config.immune && config.immune.includes(interaction?.member?.id||interaction?.user?.id)) return false;
+	if (!interaction?.member?.id) return false;
+	if (config.immune && config.immune.includes(interaction.member.id)) return false;
 	const cd = Math.floor((config.command_cooldown - (interaction.createdTimestamp - global.timestamp[interaction.channelId])) / 1000);
 	if (config.command_cooldown && cd > 0) {
 		const m = await interaction.reply(await prepareMessageContent(`Command cooldown is in effect. ${cd} seconds remaining`))
