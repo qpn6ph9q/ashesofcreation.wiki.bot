@@ -14,18 +14,6 @@ import { setActivity } from './utils.js';
 
 import initSlashCommands from './slashCommands.js';
 
-try {
-	if (config.topggtoken) {
-		const topgg = require('topgg-autoposter')
-		const ap = topgg(config.topggtoken, global.client);
-		ap.on('posted', () => {});
-	}
-} catch (e) {
-	console.error({
-		topgg_exception: e
-	});
-}
-
 global.client.on('ready', async () => {
 	console.log(`Bot starting in ${global.client.guilds.cache.size} servers with ${global.client.users.cache.size} users`);
 	setActivity();

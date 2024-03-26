@@ -5,8 +5,6 @@
     "discord.js": "^14.14.1",
     "pluralize": "^8.0.0",
     "string-strip-html": "^9.1.6",
-    "top.gg": "^2.3.2",
-    "topgg-autoposter": "^2.0.1",
     "xmlhttprequest": "^1.8.0"
   }
 }
