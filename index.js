@@ -1,29 +1,19 @@
-global.timestamp = {};
-
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 import config from './config.json';
-
 import { Client, IntentsBitField } from 'discord.js';
+import initSlashCommands from './slashCommands.js';
+
+global.timestamp = {};
 
 global.client = new Client({
 	intents: new IntentsBitField().add(IntentsBitField.Flags.Guilds)
 });
 
-import { setActivity } from './utils.js';
-
-import initSlashCommands from './slashCommands.js';
-
-try {
-	if (config.topggtoken) {
-		const topgg = require('topgg-autoposter')
-		const ap = topgg(config.topggtoken, global.client);
-		ap.on('posted', () => {});
-	}
-} catch (e) {
-	console.error({
-		topgg_exception: e
-	});
+function setActivity() {
+	global.client.user.setActivity(` on ${global.client.guilds.cache.size} discords | +help`, {
+		type: 'PLAYING'
+	})
 }
 
 global.client.on('ready', async () => {
