@@ -72,7 +72,7 @@ async function getPageEmbed(title, fragment, is_redirect = false) {
 	if (!json?.query?.pages?.length) throw 'Missing or invalid response. Try again later.';
 	if (!is_redirect && json.query.redirects && json.query.redirects.length && json.query.redirects[0].to) return await getPageEmbed(json.query.redirects[0].to, json.query.redirects[0].tofragment, true);
 	const page = json.query.pages[0];
-	let page_uri = `https://ashesofcreation.wiki/${uriWikiEncode(page.title)}`;
+	let page_uri = uriWikiEncode(page.title);
 	if (fragment) page_uri += `#${uriWikiEncode(fragment)}`;
 	if (page.missing && !is_redirect && page.title) {
 		const redir = await HTTPRequest(`${config.endpoint}/${page_uri}`);

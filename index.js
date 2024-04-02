@@ -4,18 +4,17 @@ import config from './config.json';
 import { Client, IntentsBitField } from 'discord.js';
 import initSlashCommands from './slashCommands.js';
 
-global.timestamp = {};
-
-global.client = new Client({
-	intents: new IntentsBitField().add(IntentsBitField.Flags.Guilds)
-});
-
 function setActivity() {
 	global.client.user.setActivity(` on ${global.client.guilds.cache.size} discords | +help`, {
 		type: 'PLAYING'
 	})
 }
 
+global.timestamp = {};
+
+global.client = new Client({
+	intents: new IntentsBitField().add(IntentsBitField.Flags.Guilds)
+});
 global.client.on('ready', async () => {
 	console.log(`Bot starting in ${global.client.guilds.cache.size} servers with ${global.client.users.cache.size} users`);
 	setActivity();
