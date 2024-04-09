@@ -18,7 +18,7 @@ async function HTTPRequest(url, contentType = 'text/plain;charset=iso-8859-1') {
 			console.log(`HTTPRequest: ${url}`);
 		request.addEventListener('readystatechange', () => {
 			if (request.readyState == 4) {
-				if (request.status != 200) {
+				if (request.status && request.status != 200) {
 					if (config.debug)
 						console.log(`Request for ${url} failed: readyState: ${request.readyState}, status: ${request.status}`);
 					reject('Page not found. Please try again later.');
