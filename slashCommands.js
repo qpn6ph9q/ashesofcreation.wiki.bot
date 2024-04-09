@@ -40,11 +40,10 @@ async function HTTPRequest(url, contentType = 'text/plain;charset=iso-8859-1') {
 }
 
 function sanitizeAndTruncate(str, length, str_default) {
-	if (!str) return str_default;
+	if (!str) return str_default || '';
 	str = stripHtml(str).result;
-	if(!length)
-		return str;
-	if (str.length > length - 3) return `${str.substring(0, length).trim()}...`;
+	if (length && str.length > length - 3) return `${str.substring(0, length).trim()}...`;
+	return str;
 }
 
 function ucFirst(str) {
