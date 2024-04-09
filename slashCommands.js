@@ -113,6 +113,7 @@ async function getPageEmbed(title, fragment, is_redirect = false) {
 		}
 	}
 	if (!description && page.pageprops && page.pageprops.description) description = page.pageprops.description;
+    description = sanitizeAndTruncate(description, MAX_DESCRIPTION_SIZE);
 	const embed = new EmbedBuilder()
 		.setAuthor({ name: 'Ashes of Creation Wiki' })
 		.setTitle(sanitizeAndTruncate(page_title, MAX_TITLE_SIZE, 'Untitled'))
@@ -120,7 +121,7 @@ async function getPageEmbed(title, fragment, is_redirect = false) {
 		.setURL(page_url)
 		.addFields({ name: `Learn more here`, value: `${page_url}` });
 	if (description)
-		embed.setDescription(sanitizeAndTruncate(description, MAX_DESCRIPTION_SIZE));
+		embed.setDescription(description);
 	if (page?.thumbnail?.source) embed.setImage(page.thumbnail.source);
 	return embed;
 }
