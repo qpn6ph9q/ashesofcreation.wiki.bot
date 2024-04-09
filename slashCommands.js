@@ -77,7 +77,19 @@ async function getPageEmbed(title, fragment, is_redirect = false) {
 	if (page.missing && !is_redirect && page.title) {
 		const redir = await HTTPRequest(`${config.endpoint}/${page_uri}`);
 		const location = redir.getResponseHeader('location');
-		if (!location) throw 'Not found';
+		if (!location) {
+			const ci_query = `https://ashesofcreation.wiki/api.php?action=opensearch&format=json&search=${uriWikiEncode(title)}&namespace=0&limit=6&redirects=resolve`;
+			const ci_response = await HTTPRequest(ci_query);
+			const ci_json = JSON.parse(response.responseText);
+			const ci_location = ci_json?.[1]?.[0];
+			if (config.debug)
+				console.log({ ci_query, ci_response, ci_json, ci_location });
+			if (!ci_location)
+				throw 'Not found';
+			if (config.debug)
+				console.log(`case senstive redirect to ${location}`);
+			return await getPageEmbed(ci_location, null, true);
+		}
 		if (config.debug)
 			console.log(`redirecting to ${location}`);
 		return await getPageEmbed(location, null, true);
@@ -134,9 +146,6 @@ async function prepareMessageContent(content, text) {
 		return text ? { content: text } : '??';
 	return text ? { content: [content, text] } : content;
 };
-
-
-
 
 const cooldown = async (interaction) => {
 	if (!interaction?.member?.id) return false;
@@ -241,7 +250,8 @@ async function initSlashCommands() {
 						{ name: `\`\`/random CATEGORY\`\``, value: `Random article in CATEGORY` },
 						{ name: 'Join our discord!', value: 'https://discord.gg/HEKx527' },
 						{ name: 'Invite me to your discord!', value: 'https://goo.gl/DMB3Sr' }]);
-					if (config.command_cooldown) embed.setFooter({ text: `Command cooldown is set to ${config.command_cooldown / 1000} seconds` });
+					if (config.debug) embed.setFooter({ text: `In debug mode` });
+					else if (config.command_cooldown) embed.setFooter({ text: `Command cooldown is set to ${config.command_cooldown / 1000} seconds` });
 					await interaction.reply(await prepareMessageContent(embed));
 				}
 			},
