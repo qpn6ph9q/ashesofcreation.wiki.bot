@@ -39,8 +39,8 @@ async function HTTPRequest(url, contentType = 'text/plain;charset=iso-8859-1') {
 	});
 }
 
-function sanitizeAndTruncate(str, length) {
-	if (!str) return '';
+function sanitizeAndTruncate(str, length, str_default) {
+	if (!str) return str_default;
 	str = stripHtml(str).result;
 	if(!length)
 		return str;
@@ -115,7 +115,7 @@ async function getPageEmbed(title, fragment, is_redirect = false) {
 	if (!description && page.pageprops && page.pageprops.description) description = page.pageprops.description;
 	const embed = new EmbedBuilder()
 		.setAuthor({ name: 'Ashes of Creation Wiki' })
-		.setTitle(sanitizeAndTruncate(page_title, MAX_TITLE_SIZE))
+		.setTitle(sanitizeAndTruncate(page_title, MAX_TITLE_SIZE, 'Untitled'))
 		.setColor('#e69710')
 		.setURL(page_url)
 		.addFields({ name: `Learn more here`, value: `${page_url}` });
