@@ -80,7 +80,7 @@ async function getPageEmbed(title, fragment, is_redirect = false) {
 		if (!location) {
 			const ci_query = `https://ashesofcreation.wiki/api.php?action=opensearch&format=json&search=${uriWikiEncode(title)}&namespace=0&limit=6&redirects=return`;
 			const ci_response = await HTTPRequest(ci_query);
-			const ci_json = JSON.parse(response.responseText);
+			const ci_json = JSON.parse(ci_response.responseText);
 			const ci_location = ci_json?.[1]?.[0];
 			if (config.debug)
 				console.log({ ci_query, ci_response, ci_json, ci_location });
