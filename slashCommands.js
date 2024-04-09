@@ -5,10 +5,10 @@ import { REST, Routes, EmbedBuilder, Collection } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { stripHtml } from 'string-strip-html';
 import { XMLHttpRequest } from 'xmlhttprequest';
-//import { plural } from "pluralize";
 
 const THUMBNAIL_SIZE = 800;
-const DESCRIPTION_SIZE = 349;
+const MAX_TITLE_SIZE = 100;
+const MAX_DESCRIPTION_SIZE = 349;
 const HTTP_REQUEST_TIMEOUT = 4000;
 
 async function HTTPRequest(url, contentType = 'text/plain;charset=iso-8859-1') {
@@ -37,6 +37,14 @@ async function HTTPRequest(url, contentType = 'text/plain;charset=iso-8859-1') {
 		};
 		request.send();
 	});
+}
+
+function sanitizeAndTruncate(str, length) {
+	if (!str) return '';
+	str = stripHtml(str).result;
+	if(!length)
+		return str;
+	if (str.length > length - 3) return `${str.substring(0, length).trim()}...`;
 }
 
 function ucFirst(str) {
@@ -107,16 +115,13 @@ async function getPageEmbed(title, fragment, is_redirect = false) {
 	if (!description && page.pageprops && page.pageprops.description) description = page.pageprops.description;
 	const embed = new EmbedBuilder()
 		.setAuthor({ name: 'Ashes of Creation Wiki' })
-		.setTitle(page_title)
+		.setTitle(sanitizeAndTruncate(page_title, MAX_TITLE_SIZE))
 		.setColor('#e69710')
 		.setURL(page_url)
 		.addFields({ name: `Learn more here`, value: `${page_url}` });
-	if (description) {
-		description = stripHtml(description).result;
-		if (description.length > DESCRIPTION_SIZE) description = description.substring(0, DESCRIPTION_SIZE).trim() + '...';
-		embed.setDescription(description);
-	}
-	if (page.thumbnail && page.thumbnail.source) embed.setImage(page.thumbnail.source);
+	if (description)
+		embed.setDescription(sanitizeAndTruncate(description, MAX_DESCRIPTION_SIZE));
+	if (page?.thumbnail?.source) embed.setImage(page.thumbnail.source);
 	return embed;
 }
 
