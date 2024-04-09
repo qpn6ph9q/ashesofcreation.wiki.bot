@@ -78,7 +78,7 @@ async function getPageEmbed(title, fragment, is_redirect = false) {
 		const redir = await HTTPRequest(`${config.endpoint}/${page_uri}`);
 		const location = redir.getResponseHeader('location');
 		if (!location) {
-			const ci_query = `https://ashesofcreation.wiki/api.php?action=opensearch&format=json&search=${uriWikiEncode(title)}&namespace=0&limit=6&redirects=resolve`;
+			const ci_query = `https://ashesofcreation.wiki/api.php?action=opensearch&format=json&search=${uriWikiEncode(title)}&namespace=0&limit=6&redirects=return`;
 			const ci_response = await HTTPRequest(ci_query);
 			const ci_json = JSON.parse(response.responseText);
 			const ci_location = ci_json?.[1]?.[0];
